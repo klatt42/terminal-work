@@ -245,8 +245,24 @@ else
 fi
 echo ""
 
-# 5. Generate morning briefing
-echo -e "${YELLOW}5. Generating morning briefing...${NC}"
+# 5. Capture dashboard state
+echo -e "${YELLOW}5. Capturing dashboard state...${NC}"
+if [ -f "$PROJECT_DIR/scripts/session-monitor.sh" ]; then
+    "$PROJECT_DIR/scripts/session-monitor.sh" > /dev/null 2>&1
+
+    # Save dashboard snapshot
+    if [ -f "$PROJECT_DIR/superdesign/design_iterations/terminal-session-monitor-v1.html" ]; then
+        cp "$PROJECT_DIR/superdesign/design_iterations/terminal-session-monitor-v1.html" \
+           "$SESSION_DIR/$DATE-dashboard-snapshot.html"
+        echo -e "${GREEN}✓ Dashboard snapshot saved${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠ session-monitor.sh not found, skipping dashboard${NC}"
+fi
+echo ""
+
+# 6. Generate morning briefing
+echo -e "${YELLOW}6. Generating morning briefing...${NC}"
 
 cat > "$BRIEFING_FILE" << 'BRIEF_EOF'
 #!/bin/bash
@@ -373,7 +389,7 @@ chmod +x "$BRIEFING_FILE"
 echo -e "${GREEN}✓ Morning briefing created: $BRIEFING_FILE${NC}"
 echo ""
 
-# 6. Summary
+# 7. Summary
 echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║                    END OF DAY COMPLETE ✓                     ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
@@ -381,6 +397,7 @@ echo ""
 echo -e "${BLUE}📁 Files Created:${NC}"
 echo -e "   • $TODAY_FILE (Full session log)"
 echo -e "   • $BRIEFING_FILE (Morning briefing)"
+echo -e "   • $SESSION_DIR/$DATE-dashboard-snapshot.html (Dashboard snapshot)"
 echo ""
 echo -e "${BLUE}✅ Completed:${NC}"
 echo -e "   • All projects scanned & status captured"

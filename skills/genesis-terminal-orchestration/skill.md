@@ -31,6 +31,8 @@ Load this skill when user mentions:
 | **Test Creation** | Grok CLI | Automation, volume |
 | **Quick Prototyping** | Gemini CLI | Fast iterations |
 | **Complex Reasoning** | Claude Code | Multi-step logic, agents |
+| **UI Design** | SuperDesign + Claude Code | AI-powered mockups, wireframes, components |
+| **Design Iteration** | SuperDesign + Claude Code | Rapid visual iteration, variations |
 
 ## Parallel Execution Template
 
@@ -338,6 +340,49 @@ claude "Compare WebSearch vs Perplexity results on Twingate"
 - **Perplexity only**: Research papers, citations needed, documentation
 - **Both (recommended)**: Major technology adoptions, architecture decisions
 
+### Workflow 5: Design-First Feature Development
+
+**Design-First Pattern with SuperDesign** (integrated 2025-10-29):
+
+```bash
+# Phase 1: Design (SuperDesign + Claude Code)
+claude "Generate 3 variations of a user profile dashboard UI"
+# Output: 3 HTML designs in superdesign/design_iterations/
+
+# Phase 2: Review & Iterate
+claude "Show me the gallery of designs"
+# Review in browser, select best variation
+claude "Iterate on profile-dashboard-v2.html with larger avatar and card layout"
+
+# Phase 3: Documentation (Gemini CLI)
+gemini "Document the design system from superdesign/design_iterations/profile-dashboard-v2.html"
+
+# Phase 4: Implementation (Grok CLI or Codex)
+grok "Convert superdesign/design_iterations/profile-dashboard-v2.html to React components"
+
+# Phase 5: Integration & Review (Claude Code)
+claude "Use code-reviewer subagent to ensure implementation matches design specs"
+```
+
+**SuperDesign MCP Tools**:
+- `superdesign_generate` - Create UI designs, wireframes, components, logos, icons
+- `superdesign_iterate` - Improve existing designs with feedback
+- `superdesign_extract_system` - Extract design systems from screenshots
+- `superdesign_list` - List all created designs
+- `superdesign_gallery` - Interactive HTML gallery
+
+**3 Methods for Stunning Websites**:
+1. **SuperDesign Interactive Canvas** - Original designs with real-time iteration
+2. **Pre-built Components** - Shad CN UI + MCP servers (Shad CN MCP, Tweak CN)
+3. **Clone & Adapt** - Firecrawl MCP + Figma MCP for existing designs
+
+**File Organization**:
+```
+superdesign/
+├── design_iterations/    # Generated designs (HTML/SVG)
+└── design_system/        # Design systems (JSON)
+```
+
 ## Troubleshooting
 
 ### Issue: Context Drift Between AIs
@@ -418,7 +463,9 @@ npm install -g @callstack/ai-cli
 
 ---
 
-**SKILL Version**: 1.1.0
+**SKILL Version**: 1.2.0
 **Compatible With**: Genesis v1.6.0+
 **Last Updated**: 2025-10-29
-**Changelog**: Added Research & Decision Making workflow (Workflow 4), Perplexity CLI integration, research tools comparison
+**Changelog**:
+- v1.2.0: Added SuperDesign integration (Workflow 5), UI design capabilities, design-first development pattern
+- v1.1.0: Added Research & Decision Making workflow (Workflow 4), Perplexity CLI integration, research tools comparison

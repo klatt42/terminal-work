@@ -41,5 +41,10 @@ morning() {
 briefing() { morning; }
 standup() { morning; }
 
+# Dashboard aliases
+alias dashboard='xdg-open ~/projects/terminal-work/superdesign/design_iterations/terminal-session-monitor-v1.html'
+alias monitor='~/projects/terminal-work/scripts/session-monitor.sh'
+alias dash='dashboard'
+
 echo "Terminal Work aliases loaded!"
-echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp"
+echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp, dashboard, monitor, dash"
