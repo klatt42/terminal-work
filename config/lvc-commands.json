@@ -1,0 +1,23 @@
+{
+  "activate claude": "tmux select-pane -t 2",
+  "activate gemini": "tmux select-pane -t 3",
+  "activate grok": "tmux select-pane -t 4",
+  "system terminal": "tmux select-pane -t 1",
+
+  "run tests": "tmux send-keys -t 1 'npm test' Enter",
+  "git status": "tmux send-keys -t 1 'git status' Enter",
+  "commit changes": "tmux send-keys -t 1 'git add . && git commit' Enter",
+
+  "claude show code": "tmux send-keys -t 2 'claude \"show me the project structure\"' Enter",
+  "claude analyze security": "tmux send-keys -t 2 'claude \"Use code-reviewer subagent for security analysis\"' Enter",
+  "claude review": "tmux send-keys -t 2 'claude \"Use code-reviewer subagent to review recent changes\"' Enter",
+
+  "gemini docs": "tmux send-keys -t 3 'gemini \"Generate comprehensive documentation\"' Enter",
+  "gemini analyze": "tmux send-keys -t 3 'gemini \"Analyze codebase structure and patterns\"' Enter",
+
+  "grok generate tests": "tmux send-keys -t 4 'grok \"Generate test suite for recent changes\"' Enter",
+  "grok quick code": "tmux send-keys -t 4 'grok \"Quick code implementation\"' Enter",
+
+  "sync context": "tmux send-keys -t 1 './scripts/context-sync.sh' Enter",
+  "full analysis": "tmux send-keys -t 2 'claude \"Deep analysis\"' Enter && tmux send-keys -t 3 'gemini \"Documentation\"' Enter && tmux send-keys -t 4 'grok \"Tests\"' Enter"
+}

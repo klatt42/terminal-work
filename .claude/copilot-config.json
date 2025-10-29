@@ -1,0 +1,19 @@
+{
+  "project": "terminal-work",
+  "context_files": [
+    "WORKFLOW_STATE.md",
+    "AI_CONTEXT.md",
+    ".ai-state.json",
+    "TERMINAL_PATTERNS.md"
+  ],
+  "session_recovery": {
+    "auto_load_context": true,
+    "preserve_agent_state": true,
+    "cross_session_memory": true
+  },
+  "learning_mode": {
+    "track_patterns": true,
+    "document_discoveries": true,
+    "build_skill_library": true
+  }
+}
