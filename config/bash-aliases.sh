@@ -30,12 +30,8 @@ alias acp='git add -A && git commit -m'
 
 # Morning briefing (functions work better than aliases with command substitution)
 morning() {
-    local briefing_file=$(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)
-    if [ -n "$briefing_file" ]; then
-        bash "$briefing_file"
-    else
-        echo "No morning briefing found. Run 'eod' tonight to generate one!"
-    fi
+    # Use enhanced real-time morning briefing
+    ~/projects/terminal-work/scripts/morning-briefing.sh
 }
 
 briefing() { morning; }
@@ -46,5 +42,9 @@ alias dashboard='xdg-open ~/projects/terminal-work/superdesign/design_iterations
 alias monitor='~/projects/terminal-work/scripts/session-monitor.sh'
 alias dash='dashboard'
 
+# Project scan alias
+alias scan='~/projects/terminal-work/scripts/scan-projects.sh'
+alias status='~/projects/terminal-work/scripts/scan-projects.sh'
+
 echo "Terminal Work aliases loaded!"
-echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp, dashboard, monitor, dash"
+echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp, dashboard, monitor, dash, scan, status"
