@@ -9,8 +9,108 @@ Complete reference for all installed AI assistants in your terminal workspace.
 | AI | Version | Command | Best For |
 |---|---------|---------|----------|
 | **Claude Code** | 2.0.20 | `claude` | Advanced reasoning, security, orchestration |
+| **Codex** | 0.50.0 | `codex` | OpenAI coding agent, codebase editing |
 | **Gemini CLI** | 0.11.0 | `gemini` | Large context (2M tokens), documentation |
 | **OpenCode** | 0.15.23 | `opencode` | Free Grok access, fast coding |
+| **Perplexity** | 0.11.0 | `ai` | Real-time research, current information |
+
+---
+
+## Codex (OpenAI)
+
+**Installed**: ✓ (version 0.50.0)
+**Authentication**: Required on first use (OpenAI account)
+
+### First-Time Setup
+
+```bash
+# Launch Codex (will prompt for authentication)
+codex
+
+# Follow prompts to authenticate with OpenAI
+```
+
+### Usage
+
+```bash
+# Interactive mode
+codex
+
+# The Codex CLI provides an interactive terminal interface
+# It can read your codebase, make edits, and run commands
+```
+
+### Strengths
+- **Deep codebase understanding** - Reads and comprehends entire projects
+- **Interactive editing** - Live code modifications with preview
+- **Command execution** - Can run terminal commands
+- **Zero-dependency** - Rust-based, fast and secure
+- **Internet access** - Can fetch current information
+
+### When to Use
+- Complex multi-file refactoring
+- Understanding unfamiliar codebases
+- Interactive code generation with feedback
+- Tasks requiring both code edits AND command execution
+
+---
+
+## Perplexity (via AI CLI)
+
+**Installed**: ✓ (version 0.11.0)
+**Authentication**: Requires your Perplexity API key
+**Command**: `ai`
+
+### First-Time Setup
+
+```bash
+# Initialize AI CLI
+ai init
+
+# This creates ~/.airc.json
+# Add your Perplexity API key to the config
+```
+
+**Manual config** (if needed):
+```bash
+# Edit config
+nano ~/.airc.json
+
+# Add:
+{
+  "provider": "perplexity",
+  "apiKey": "YOUR_PERPLEXITY_API_KEY"
+}
+```
+
+Get your API key from: https://www.perplexity.ai/settings/api
+
+### Usage
+
+```bash
+# Research query
+ai "What are the latest developments in Next.js 15?"
+
+# Deep research
+ai "Research best practices for WebAssembly in 2025"
+
+# Quick lookup
+ai "How to configure TypeScript path aliases?"
+```
+
+### Strengths
+- **Real-time web search** - Gets current, up-to-date information
+- **Research-focused** - Perfect for finding best practices
+- **Citation-backed** - Shows sources for verification
+- **Fast responses** - Quick research queries
+- **Current trends** - Knows what's happening NOW
+
+### When to Use
+- Researching current best practices
+- Finding latest library documentation
+- Checking recent API changes
+- Getting current tech trends/news
+- Verifying information before implementation
 
 ---
 
@@ -158,14 +258,17 @@ opencode
 
 | Task Type | Primary AI | Secondary AI | Why |
 |-----------|-----------|--------------|-----|
-| **Architecture** | Claude Code | Gemini | Deep reasoning + context |
+| **Research** | **Perplexity** (`ai`) | - | Real-time web search |
+| **Architecture** | Claude Code | Codex | Deep reasoning + implementation |
 | **Security Review** | Claude Code | - | Critical analysis required |
 | **Documentation** | Gemini | OpenCode | Large context + speed |
-| **Large Codebase** | Gemini | Claude Code | 2M token context |
-| **Quick Prototyping** | OpenCode | - | Free + fast |
-| **Code Generation** | OpenCode/Gemini | Claude Code | Speed vs quality |
+| **Large Codebase** | Gemini | Codex | 2M token context + understanding |
+| **Quick Prototyping** | OpenCode | Codex | Free Grok + OpenAI |
+| **Code Generation** | Codex | OpenCode | Interactive + fast |
 | **Testing** | OpenCode | Gemini | Automation + cost |
-| **Refactoring** | Claude Code | Gemini | Complexity + context |
+| **Refactoring** | Codex | Claude Code | Interactive + reasoning |
+| **Current Info** | **Perplexity** (`ai`) | - | Latest best practices |
+| **Multi-file Edits** | Codex | Claude Code | Interactive + context |
 
 ---
 
@@ -174,6 +277,11 @@ opencode
 ### Claude Code ✓
 - Authenticated via your Anthropic account
 - No additional setup needed
+
+### Codex ⚠️
+- **Needs authentication on first use**
+- Run: `codex` and follow prompts
+- Requires OpenAI account
 
 ### Gemini CLI ⚠️
 - **Needs authentication on first use**
@@ -186,6 +294,12 @@ opencode
 - Just run: `opencode`
 - Select "Grok Code Free" model
 
+### Perplexity ⚠️
+- **Needs API key configuration**
+- Run: `ai init`
+- Add your API key to `~/.airc.json`
+- Get key from: https://www.perplexity.ai/settings/api
+
 ---
 
 ## Quick Start Commands
@@ -196,6 +310,10 @@ opencode
 # Test Claude Code (you're in it!)
 claude "What AI CLIs are installed?"
 
+# Test Codex (will prompt for auth first time)
+codex
+# Interactive terminal interface will open
+
 # Test Gemini (will prompt for auth first time)
 gemini "List files in current directory"
 
@@ -205,6 +323,9 @@ opencode
 /models
 # Select "Grok Code Free"
 # Then: "Show me project structure"
+
+# Test Perplexity (after adding API key)
+ai "What are the latest TypeScript features in 2025?"
 ```
 
 ---
@@ -241,24 +362,35 @@ morning              # Your workflow already tracks all AIs
 
 ## Terminal Layout Recommendations
 
-### Option 1: Four-Panel (tmux)
+### Option 1: Full Multi-AI (5 terminals)
+```
+┌──────────┬──────────┬──────────┐
+│Perplexity│Claude Code│  Codex   │
+│(research)│ (design) │  (impl)  │
+├──────────┼──────────┴──────────┤
+│  Gemini  │     OpenCode        │
+│  (docs)  │   (test/speed)      │
+└──────────┴─────────────────────┘
+```
+
+### Option 2: Research + Development (4-panel)
 ```
 ┌─────────────┬─────────────┐
-│ WSL         │ Claude Code │
-│ (monitoring)│ (primary)   │
+│ Perplexity  │ Claude Code │
+│ (research)  │ (primary)   │
 ├─────────────┼─────────────┤
-│ Gemini CLI  │ OpenCode    │
-│ (docs)      │ (fast code) │
+│   Codex     │  Gemini     │
+│ (implement) │   (docs)    │
 └─────────────┴─────────────┘
 ```
 
-### Option 2: Three-Panel
+### Option 3: Focused Development (3-panel)
 ```
 ┌─────────────────────────────┐
 │   Claude Code (primary)     │
 ├──────────────┬──────────────┤
-│  Gemini CLI  │  OpenCode    │
-│  (context)   │  (speed)     │
+│    Codex     │ Perplexity   │
+│ (implement)  │  (research)  │
 └──────────────┴──────────────┘
 ```
 
