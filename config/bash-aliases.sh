@@ -28,10 +28,18 @@ alias qp='git push'
 # Combined: add all, commit, push
 alias acp='git add -A && git commit -m'
 
-# Morning briefing
-alias morning='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
-alias briefing='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
-alias standup='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
+# Morning briefing (functions work better than aliases with command substitution)
+morning() {
+    local briefing_file=$(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)
+    if [ -n "$briefing_file" ]; then
+        bash "$briefing_file"
+    else
+        echo "No morning briefing found. Run 'eod' tonight to generate one!"
+    fi
+}
+
+briefing() { morning; }
+standup() { morning; }
 
 echo "Terminal Work aliases loaded!"
 echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp"
