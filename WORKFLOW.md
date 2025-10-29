@@ -34,12 +34,14 @@ acp "Update: docs"  # add, commit, push in one command
 ## End of Day: Capture & Push
 
 ### What It Does
-1. Captures terminal states (pwd, git status, command history)
-2. Prompts for your daily summary
-3. Updates AI context files
-4. Commits all changes
-5. Pushes to GitHub
-6. Creates tomorrow's plan file
+1. **Scans ALL projects** in ~/projects/ directory
+2. Captures each project's git status, branch, recent commits
+3. Captures terminal states (pwd, git status, command history)
+4. Prompts for your daily summary
+5. Updates AI context files
+6. Commits all changes
+7. Pushes to GitHub
+8. **Generates executable morning briefing script**
 
 ### Run It
 
@@ -63,35 +65,106 @@ eod
 - **Commit message**: Final commit message for the day
 
 ### Files Created
-- `notes/daily-sessions/YYYY-MM-DD.md` - Today's session
-- `notes/daily-sessions/YYYY-MM-DD-plan.md` - Tomorrow's plan
+- `notes/daily-sessions/YYYY-MM-DD.md` - Full session with ALL projects status
+- `notes/daily-sessions/YYYY-MM-DD-morning-briefing.sh` - Executable briefing script
 
 ---
 
-## Starting Fresh Tomorrow
+## Starting Fresh Tomorrow: Morning Briefing
 
-1. Open terminal
-2. Navigate to project:
-   ```bash
-   cd ~/projects/terminal-work
-   ```
+### Run Your Morning Briefing
 
-3. Review yesterday:
-   ```bash
-   cat notes/daily-sessions/$(date -d yesterday '+%Y-%m-%d' 2>/dev/null || date -v-1d '+%Y-%m-%d' 2>/dev/null).md
-   ```
+**Option 1: Shell Alias (Recommended)**
+```bash
+morning
+# or
+briefing
+# or
+standup
+```
 
-4. Check today's plan:
-   ```bash
-   cat notes/daily-sessions/$(date '+%Y-%m-%d')-plan.md
-   ```
+**Option 2: Direct Execution**
+```bash
+~/projects/terminal-work/notes/daily-sessions/YYYY-MM-DD-morning-briefing.sh
+```
 
-5. Sync context:
-   ```bash
-   ./scripts/context-sync.sh
-   ```
+**Option 3: Claude Code Slash Command**
+```
+/morning
+```
 
-6. Start working with full context!
+### What You'll See
+
+The morning briefing shows you:
+
+1. **Yesterday's Summary** - What you accomplished
+2. **ALL Projects Status** - Every project in ~/projects/
+   - Current git branch
+   - Uncommitted changes (⚠️ flagged)
+   - Last commit
+   - Files modified yesterday
+   - **Exact `cd` command to resume work**
+3. **Next Steps** - Prioritized action items
+4. **Quick Commands** - Reference for today's workflow
+
+### Example Output
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║              MORNING BRIEFING - 2025-10-30                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+📅 Yesterday: 2025-10-29
+📅 Today: 2025-10-30
+
+═══════════════════════════════════════════════════════════════
+📋 YESTERDAY'S SUMMARY
+═══════════════════════════════════════════════════════════════
+Completed multi-AI terminal setup, created workflow automation...
+
+═══════════════════════════════════════════════════════════════
+📁 ALL PROJECTS STATUS
+═══════════════════════════════════════════════════════════════
+
+📦 copilot-app
+   Location: /home/user/projects/copilot-app
+   ⚠️  UNCOMMITTED CHANGES:
+      M src/components/Chat.tsx
+      M package.json
+   📌 Branch: feature/new-ui
+   💬 Last: Add: Chat component improvements
+   📝 15 files modified yesterday
+   🚀 Open with: cd /home/user/projects/copilot-app
+
+📦 genesis-saas
+   Location: /home/user/projects/genesis-saas
+   ✓ Clean working directory
+   📌 Branch: main
+   💬 Last: Update: Supabase schema
+   🚀 Open with: cd /home/user/projects/genesis-saas
+
+📦 terminal-work
+   Location: /home/user/projects/terminal-work
+   ✓ Clean working directory
+   📌 Branch: main
+   💬 Last: Add: Morning briefing system
+   🚀 Open with: cd /home/user/projects/terminal-work
+```
+
+### Quick Start Flow
+
+1. Run `morning` or `briefing`
+2. Review all projects - note which have ⚠️ uncommitted changes
+3. Pick a project and copy/paste the `cd` command
+4. Start working!
+
+### Full Context Preserved
+
+You can close ALL terminals at night. The morning briefing gives you:
+- Exactly where each project left off
+- Which projects need attention
+- Direct commands to resume work
+- Full context from yesterday
 
 ---
 
@@ -109,6 +182,9 @@ source ~/.bashrc
 - `qp` - Quick push
 - `eod` - End of day workflow
 - `endday` - End of day (alias)
+- `morning` - Morning briefing (shows all projects)
+- `briefing` - Morning briefing (alias)
+- `standup` - Morning briefing (alias)
 - `sync-context` - Sync AI context
 - `ctx` - Sync context (short)
 - `tw` - Go to terminal-work
@@ -120,9 +196,9 @@ source ~/.bashrc
 
 **Morning (9:00 AM)**
 ```bash
-tw                              # Navigate to project
-cat notes/daily-sessions/$(date '+%Y-%m-%d')-plan.md  # Review plan
-ctx                             # Sync context
+morning                         # See ALL projects status + yesterday's summary
+# Review output - shows copilot-app has uncommitted changes
+cd ~/projects/copilot-app       # Copy/paste from briefing output
 ```
 
 **Throughout Day**
@@ -140,22 +216,31 @@ qc "Add: notes on async patterns"
 **End of Day (5:00 PM)**
 ```bash
 eod                             # Run end-of-day workflow
+# Scans ALL projects in ~/projects/
 # Enter summary when prompted
 # Enter final commit message
 # Everything pushed to GitHub!
+# Morning briefing generated!
 ```
 
-**Close terminals - your context is saved!**
+**Close ALL terminals - full context for all projects saved!**
+
+**Next Morning**
+```bash
+morning                         # Instant overview of all projects
+# Pick up exactly where you left off
+```
 
 ---
 
 ## Tips
 
-1. **Commit Often**: 3-5+ commits per day keeps history clear
-2. **Descriptive Messages**: Use prefixes (Add:, Update:, Fix:, Create:)
-3. **End Every Day**: Run `/eod` or `eod` to preserve context
-4. **Review Plans**: Start each day by reading yesterday's session
-5. **Use Aliases**: Install them once, save time forever
+1. **Morning Briefing First**: Always run `morning` to see all project states
+2. **Commit Often**: 3-5+ commits per day keeps history clear
+3. **Descriptive Messages**: Use prefixes (Add:, Update:, Fix:, Create:)
+4. **End Every Day**: Run `/eod` or `eod` to capture ALL projects
+5. **Multi-Project Awareness**: The briefing shows EVERY project - not just current one
+6. **Use Aliases**: Install them once, save time forever
 
 ---
 
@@ -194,11 +279,20 @@ source ~/projects/terminal-work/config/bash-aliases.sh
 ## Full Workflow Summary
 
 ```
-Morning:    Review → Sync Context → Start Work
+Morning:    Run Morning Briefing → See ALL Projects → Pick One → Start Work
 During Day: Work → Quick Commit → Work → Quick Commit (repeat)
-End of Day: Run EOD → Enter Summary → Push → Close Terminals
-Next Day:   Fresh start with full context preserved!
+End of Day: Run EOD → All Projects Scanned → Enter Summary → Push → Close ALL Terminals
+Next Day:   Morning Briefing shows exactly where EVERY project left off!
 ```
+
+## Key Benefits
+
+✓ **Never lose context** - Morning briefing shows ALL projects
+✓ **Know what needs attention** - Uncommitted changes flagged with ⚠️
+✓ **Instant resume** - Copy/paste exact `cd` commands
+✓ **Multi-project awareness** - See everything at once
+✓ **Safe to close terminals** - Full state preserved every night
+✓ **Daily continuity** - Yesterday's summary + today's priorities
 
 ---
 

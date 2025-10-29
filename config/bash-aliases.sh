@@ -28,5 +28,10 @@ alias qp='git push'
 # Combined: add all, commit, push
 alias acp='git add -A && git commit -m'
 
+# Morning briefing
+alias morning='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
+alias briefing='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
+alias standup='bash $(ls -t ~/projects/terminal-work/notes/daily-sessions/*-morning-briefing.sh 2>/dev/null | head -1)'
+
 echo "Terminal Work aliases loaded!"
-echo "Available: qc, commit, eod, endday, sync-context, ctx, tw, tws, qp, acp"
+echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp"

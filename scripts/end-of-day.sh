@@ -6,11 +6,14 @@
 set -e
 
 PROJECT_DIR="$HOME/projects/terminal-work"
+PROJECTS_ROOT="$HOME/projects"
 DATE=$(date '+%Y-%m-%d')
 TIME=$(date '+%H:%M:%S')
 TIMESTAMP="${DATE}_${TIME//:/-}"
 SESSION_DIR="$PROJECT_DIR/notes/daily-sessions"
 TODAY_FILE="$SESSION_DIR/$DATE.md"
+TOMORROW=$(date -d tomorrow '+%Y-%m-%d' 2>/dev/null || date -v+1d '+%Y-%m-%d' 2>/dev/null)
+BRIEFING_FILE="$SESSION_DIR/$TOMORROW-morning-briefing.md"
 
 # Colors
 GREEN='\033[0;32m'
@@ -52,14 +55,86 @@ $SUMMARY
 
 ---
 
-## Terminal States
+## All Projects Status
 
-### Current Directory
+EOF
+
+# Scan all projects
+echo -e "${YELLOW}Scanning all projects in $PROJECTS_ROOT...${NC}"
+
+for project_path in "$PROJECTS_ROOT"/*; do
+    if [ -d "$project_path" ]; then
+        project_name=$(basename "$project_path")
+        cat >> "$TODAY_FILE" << PROJ_EOF
+
+### 📁 $project_name
+**Location**: \`$project_path\`
+
+PROJ_EOF
+
+        cd "$project_path"
+
+        # Check if it's a git repo
+        if [ -d ".git" ]; then
+            cat >> "$TODAY_FILE" << PROJ_EOF
+**Git Status**:
+\`\`\`
+$(git status -s 2>/dev/null | head -10 || echo "No changes")
+\`\`\`
+
+**Current Branch**: \`$(git branch --show-current 2>/dev/null || echo "N/A")\`
+
+**Recent Commits** (last 3):
+\`\`\`
+$(git log --oneline -3 2>/dev/null || echo "No commits")
+\`\`\`
+
+**Modified Today**:
+\`\`\`
+$(git diff --stat 2>/dev/null | head -10 || echo "No changes")
+\`\`\`
+
+PROJ_EOF
+        else
+            cat >> "$TODAY_FILE" << PROJ_EOF
+Not a git repository
+
+PROJ_EOF
+        fi
+
+        # Check for running processes or notes
+        if [ -f "README.md" ]; then
+            cat >> "$TODAY_FILE" << PROJ_EOF
+**Has README**: ✓
+
+PROJ_EOF
+        fi
+
+        # Check for recent file activity
+        recent_files=$(find "$project_path" -type f -mtime -1 ! -path "*/.git/*" ! -path "*/node_modules/*" 2>/dev/null | wc -l)
+        if [ "$recent_files" -gt 0 ]; then
+            cat >> "$TODAY_FILE" << PROJ_EOF
+**Files Modified Today**: $recent_files
+
+PROJ_EOF
+        fi
+    fi
+done
+
+cd "$PROJECT_DIR"
+
+cat >> "$TODAY_FILE" << EOF
+
+---
+
+## Current Terminal State
+
+### Working Directory
 \`\`\`
 $(pwd)
 \`\`\`
 
-### Git Status
+### Git Status (terminal-work)
 \`\`\`
 $(git status 2>/dev/null || echo "Not in a git repository")
 \`\`\`
@@ -170,66 +245,132 @@ else
 fi
 echo ""
 
-# 5. Generate tomorrow's context
-echo -e "${YELLOW}5. Generating tomorrow context...${NC}"
-TOMORROW=$(date -d tomorrow '+%Y-%m-%d' 2>/dev/null || date -v+1d '+%Y-%m-%d' 2>/dev/null)
-TOMORROW_FILE="$SESSION_DIR/$TOMORROW-plan.md"
+# 5. Generate morning briefing
+echo -e "${YELLOW}5. Generating morning briefing...${NC}"
 
-cat > "$TOMORROW_FILE" << EOF
-# Tomorrow's Plan - $TOMORROW
+cat > "$BRIEFING_FILE" << 'BRIEF_EOF'
+#!/bin/bash
+# Morning Briefing - Generated from yesterday's end-of-day
 
-**Created**: $DATE $TIME
+DATE=$(date '+%Y-%m-%d')
+BRIEF_EOF
 
----
+cat >> "$BRIEFING_FILE" << BRIEF_EOF
+YESTERDAY="$DATE"
+PROJECTS_ROOT="$PROJECTS_ROOT"
 
-## Carry Over from Today
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║              MORNING BRIEFING - $TOMORROW                ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+echo ""
+echo "📅 Yesterday: $DATE"
+echo "📅 Today: $TOMORROW"
+echo ""
 
-Review: $TODAY_FILE
+# Show yesterday's summary
+echo "═══════════════════════════════════════════════════════════════"
+echo "📋 YESTERDAY'S SUMMARY"
+echo "═══════════════════════════════════════════════════════════════"
+cat "$TODAY_FILE" | grep -A 20 "## Summary" | tail -n +2 | head -n 15
+echo ""
 
----
+echo "═══════════════════════════════════════════════════════════════"
+echo "📁 ALL PROJECTS STATUS"
+echo "═══════════════════════════════════════════════════════════════"
 
-## Priority Tasks
+# Scan all projects and show where to pick up
+BRIEF_EOF
 
-1. [ ]
-2. [ ]
-3. [ ]
+# Generate project scanning code
+for project_path in "$PROJECTS_ROOT"/*; do
+    if [ -d "$project_path" ]; then
+        project_name=$(basename "$project_path")
 
----
+        cat >> "$BRIEFING_FILE" << BRIEF_EOF
 
-## Terminal Setup
+echo ""
+echo "📦 $project_name"
+echo "   Location: $project_path"
 
-Starting directory: \`$(pwd)\`
+if [ -d "$project_path/.git" ]; then
+    cd "$project_path"
 
-### Recommended Layout
+    # Check for uncommitted changes
+    if [[ -n \$(git status -s 2>/dev/null) ]]; then
+        echo "   ⚠️  UNCOMMITTED CHANGES:"
+        git status -s | head -5 | sed 's/^/      /'
+    else
+        echo "   ✓ Clean working directory"
+    fi
 
-\`\`\`bash
-# Tab 1: Main work
-cd $PROJECT_DIR
+    # Show current branch
+    current_branch=\$(git branch --show-current 2>/dev/null)
+    echo "   📌 Branch: \$current_branch"
 
-# Tab 2: Claude Code (if needed)
-claude
+    # Show last commit
+    last_commit=\$(git log --oneline -1 2>/dev/null | head -c 60)
+    echo "   💬 Last: \$last_commit"
 
-# Tab 3: Gemini CLI (if installed)
-gemini
+    # Check if ahead/behind
+    git_status=\$(git status 2>/dev/null | grep -E "(ahead|behind)" || echo "")
+    if [ -n "\$git_status" ]; then
+        echo "   ⚡ \$git_status"
+    fi
 
-# Tab 4: Monitoring
-watch -n 5 "git status"
-\`\`\`
+    # Check for files modified recently
+    recent=\$(find "$project_path" -type f -mtime -1 ! -path "*/.git/*" ! -path "*/node_modules/*" 2>/dev/null | wc -l)
+    if [ "\$recent" -gt 0 ]; then
+        echo "   📝 \$recent files modified yesterday"
+    fi
 
----
+    echo "   🚀 Open with: cd $project_path"
+else
+    echo "   📄 Not a git repository"
+fi
+BRIEF_EOF
+    fi
+done
 
-## Context Files to Review
+cat >> "$BRIEFING_FILE" << 'BRIEF_EOF'
 
-- [ ] AI_CONTEXT.md
-- [ ] WORKFLOW_STATE.md
-- [ ] $TODAY_FILE
+echo ""
+echo "═══════════════════════════════════════════════════════════════"
+echo "🎯 NEXT STEPS"
+echo "═══════════════════════════════════════════════════════════════"
+echo ""
+echo "1. Review projects above - look for ⚠️  uncommitted changes"
+echo "2. Choose a project to start with"
+echo "3. Run: cd <project-path>"
+echo "4. Sync context: ~/projects/terminal-work/scripts/context-sync.sh"
+echo "5. Start working!"
+echo ""
+echo "═══════════════════════════════════════════════════════════════"
+echo "📖 QUICK COMMANDS"
+echo "═══════════════════════════════════════════════════════════════"
+echo ""
+echo "View yesterday's full session:"
+BRIEF_EOF
 
----
+cat >> "$BRIEFING_FILE" << BRIEF_EOF
+echo "  cat $TODAY_FILE"
+BRIEF_EOF
 
-**Start fresh with**: \`./scripts/context-sync.sh\`
-EOF
+cat >> "$BRIEFING_FILE" << 'BRIEF_EOF'
+echo ""
+echo "Quick commit:"
+echo "  ~/projects/terminal-work/scripts/quick-commit.sh \"Add: message\""
+echo ""
+echo "End of day (tonight):"
+echo "  ~/projects/terminal-work/scripts/end-of-day.sh"
+echo ""
+echo "═══════════════════════════════════════════════════════════════"
+echo "Ready to start fresh! 🚀"
+echo "═══════════════════════════════════════════════════════════════"
+BRIEF_EOF
 
-echo -e "${GREEN}✓ Tomorrow's plan created: $TOMORROW_FILE${NC}"
+chmod +x "$BRIEFING_FILE"
+
+echo -e "${GREEN}✓ Morning briefing created: $BRIEFING_FILE${NC}"
 echo ""
 
 # 6. Summary
@@ -238,19 +379,28 @@ echo -e "${GREEN}║                    END OF DAY COMPLETE ✓                 
 echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}📁 Files Created:${NC}"
-echo -e "   • $TODAY_FILE"
-echo -e "   • $TOMORROW_FILE"
+echo -e "   • $TODAY_FILE (Full session log)"
+echo -e "   • $BRIEFING_FILE (Morning briefing)"
 echo ""
 echo -e "${BLUE}✅ Completed:${NC}"
-echo -e "   • Terminal state captured"
+echo -e "   • All projects scanned & status captured"
+echo -e "   • Terminal states preserved"
 echo -e "   • AI context synchronized"
 echo -e "   • Changes committed & pushed"
-echo -e "   • Tomorrow's plan created"
+echo -e "   • Morning briefing generated"
 echo ""
-echo -e "${YELLOW}🌙 Safe to close terminals. Tomorrow's context is saved!${NC}"
+echo -e "${YELLOW}🌙 Safe to close ALL terminals. Full context saved!${NC}"
 echo ""
 echo -e "${BLUE}Tomorrow morning, run:${NC}"
-echo -e "   cd $PROJECT_DIR"
-echo -e "   cat $TOMORROW_FILE"
-echo -e "   ./scripts/context-sync.sh"
+echo -e "   $BRIEFING_FILE"
+echo ""
+echo -e "${BLUE}Or from anywhere:${NC}"
+echo -e "   ~/projects/terminal-work/notes/daily-sessions/$TOMORROW-morning-briefing.sh"
+echo ""
+echo -e "${BLUE}This will show you:${NC}"
+echo -e "   ✓ Yesterday's summary"
+echo -e "   ✓ All projects with their current state"
+echo -e "   ✓ Which projects have uncommitted changes"
+echo -e "   ✓ Exact 'cd' commands to resume work"
+echo -e "   ✓ Quick commands reference"
 echo ""
