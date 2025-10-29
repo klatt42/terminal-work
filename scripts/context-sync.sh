@@ -83,11 +83,24 @@ init_state() {
 EOF
 }
 
+# Update timestamp in all AI-specific context files
+update_ai_contexts() {
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    for ai_file in "$HOME"/CLAUDE.md "$HOME"/GEMINI.md "$HOME"/CODEX.md "$HOME"/GROK.md "$HOME"/PERPLEXITY.md; do
+        if [ -f "$ai_file" ]; then
+            sed -i "s/Last Updated.*/Last Updated**: $timestamp (auto-synced)/" "$ai_file"
+        fi
+    done
+}
+
 # Main execution
 echo "Synchronizing AI context..."
 update_context
 init_state
+update_ai_contexts
 echo "Context synchronized successfully!"
 echo "Files updated:"
 echo "  - $CONTEXT_FILE"
 echo "  - $STATE_FILE"
+echo "  - All AI-specific context files (CLAUDE.md, GEMINI.md, CODEX.md, GROK.md, PERPLEXITY.md)"
