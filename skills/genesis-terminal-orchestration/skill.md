@@ -23,6 +23,8 @@ Load this skill when user mentions:
 |-----------|-----------|-----------|
 | **Architecture** | Claude Code | Deep reasoning, complex context management |
 | **Security Analysis** | Claude Code | Critical analysis, subagent support |
+| **Quick Research** | Claude Code WebSearch | Fast (5s), structured, actionable decisions |
+| **Deep Research** | Perplexity CLI | Thorough (30-40s), cited sources, comprehensive |
 | **Documentation** | Gemini CLI | Large context window (1M tokens) |
 | **Large File Analysis** | Gemini CLI | Superior context handling |
 | **Code Generation** | Grok CLI | High speed, cost-effective |
@@ -296,6 +298,46 @@ claude "Review documentation for accuracy and completeness"
 grok "Generate working code examples for documentation"
 ```
 
+### Workflow 4: Research & Decision Making
+
+**Two-Phase Research Pattern** (validated 2025-10-29):
+
+```bash
+# Phase 1: Quick Decision (Claude Code WebSearch - 5 seconds)
+claude "Quick research on [topic]"
+# Returns: Fast, structured, actionable summary
+# Use for: Technical decisions, quick evaluations
+
+# Phase 2: Deep Research (Perplexity - 30-40 seconds)
+ai "Comprehensive research on [topic]: features, pros/cons, pricing, should I adopt?"
+# Returns: Thorough analysis with citations [1][2][3]
+# Use for: Major decisions, documentation, verification
+
+# Phase 3: Synthesis (Claude Code)
+claude "Compare both research outputs and recommend action"
+# Analyzes differences, makes final recommendation
+```
+
+**Example: Twingate ZTNA Research**
+```bash
+# Quick evaluation
+claude "Research Twingate zero trust network access for solo developers"
+→ Result: 5s, key benefits identified, adoption recommended
+
+# Deep dive
+ai "Research Twingate zero trust: technical details, pros/cons table, free tier limits"
+→ Result: 40s, comprehensive with citations, structured pros/cons
+
+# Decision
+claude "Compare WebSearch vs Perplexity results on Twingate"
+→ Synthesis: Both recommend adoption, free tier suitable, 15min setup
+```
+
+**When to Use Each**:
+- **WebSearch only**: Quick technical decisions, time-sensitive
+- **Perplexity only**: Research papers, citations needed, documentation
+- **Both (recommended)**: Major technology adoptions, architecture decisions
+
 ## Troubleshooting
 
 ### Issue: Context Drift Between AIs
@@ -339,8 +381,44 @@ grok "Generate working code examples for documentation"
 - Grok CLI: https://github.com/superagent-ai/grok-cli
 - voice2json: https://voice2json.org/
 
+## Research Tools Comparison
+
+| Feature | Claude Code WebSearch | Perplexity CLI | Claude Code WebFetch |
+|---------|----------------------|----------------|---------------------|
+| **Speed** | ~5 seconds | ~30-40 seconds | ~10 seconds |
+| **Output** | Structured summary | Detailed analysis | Page-specific content |
+| **Citations** | No | Yes [1][2][3] | No |
+| **Best for** | Quick decisions | Deep research | Documentation scraping |
+| **Format** | Bullet points | Tables + paragraphs | Raw content analysis |
+| **Pros/Cons** | Basic | Comprehensive | Depends on site |
+| **Limitations** | US only | Requires API key | Fails on JS-heavy sites |
+
+**Perplexity CLI Setup**:
+```bash
+# Install
+npm install -g @callstack/ai-cli
+
+# Configure ~/.airc.json
+{
+  "providers": {
+    "perplexity": {
+      "apiKey": "pplx-YOUR-KEY",
+      "model": "sonar"
+    }
+  },
+  "defaultProvider": "perplexity"
+}
+
+# Models available:
+# - sonar: Fast, cost-effective (recommended)
+# - sonar-pro: More thorough research
+# - sonar-reasoning: Logical reasoning tasks
+# - sonar-deep-research: Expert-level research
+```
+
 ---
 
-**SKILL Version**: 1.0.0
+**SKILL Version**: 1.1.0
 **Compatible With**: Genesis v1.6.0+
-**Last Updated**: 2025-10-28
+**Last Updated**: 2025-10-29
+**Changelog**: Added Research & Decision Making workflow (Workflow 4), Perplexity CLI integration, research tools comparison
