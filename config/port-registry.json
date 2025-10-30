@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-30",
+  "description": "Central port registry for all development projects",
+  "ports": {
+    "serp-master": {
+      "frontend": 3000,
+      "backend": 8000,
+      "status": "active",
+      "notes": "Production SEO platform - Next.js + FastAPI"
+    },
+    "my-erp-plan": {
+      "frontend": 3001,
+      "backend": null,
+      "status": "active",
+      "notes": "Emergency Response Planning SaaS - Next.js only"
+    },
+    "rok-copilot": {
+      "frontend": 3002,
+      "backend": null,
+      "status": "active",
+      "notes": "AI assistant - Next.js only"
+    },
+    "prism-specialties-dmv-empire": {
+      "frontend": 3003,
+      "backend": null,
+      "status": "active",
+      "notes": "Landing page empire - Static HTML with live-server"
+    },
+    "recipe-keeper-app": {
+      "frontend": 3004,
+      "backend": null,
+      "status": "inactive",
+      "notes": "Recipe management - Next.js only"
+    },
+    "amplify-engine": {
+      "frontend": 3005,
+      "backend": null,
+      "status": "inactive",
+      "notes": "Project amplification tools"
+    },
+    "bullseye-archon-enhanced": {
+      "frontend": 3006,
+      "backend": null,
+      "status": "inactive",
+      "notes": "Archon integration"
+    },
+    "project-genesis": {
+      "frontend": 3007,
+      "backend": null,
+      "status": "inactive",
+      "notes": "Genesis framework"
+    }
+  },
+  "reservedPorts": {
+    "3000-3019": "Frontend services",
+    "8000-8019": "Backend APIs",
+    "5432": "PostgreSQL (Supabase local)",
+    "6379": "Redis",
+    "9000-9019": "Microservices"
+  },
+  "nextAvailable": {
+    "frontend": 3008,
+    "backend": 8001
+  }
+}

@@ -48,3 +48,5 @@ alias status='~/projects/terminal-work/scripts/scan-projects.sh'
 
 echo "Terminal Work aliases loaded!"
 echo "Available: qc, commit, eod, endday, morning, briefing, standup, sync-context, ctx, tw, tws, qp, acp, dashboard, monitor, dash, scan, status"
+# Add port management aliases to main bash aliases
+source ~/projects/terminal-work/config/bash-aliases-ports.sh
