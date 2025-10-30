@@ -1,7 +1,11 @@
 #!/bin/bash
 # Scan all projects for uncommitted changes and unpushed commits
 
-PROJECTS_DIR="$HOME/projects"
+# Define all project directories to scan
+PROJECT_DIRS=(
+    "$HOME/projects"
+    "$HOME/serp-master"
+)
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "🔍 REAL-TIME PROJECT SCAN"
@@ -10,51 +14,74 @@ echo ""
 
 has_issues=0
 
-for project_dir in "$PROJECTS_DIR"/*; do
-    if [ -d "$project_dir/.git" ]; then
-        cd "$project_dir"
-        project_name=$(basename "$project_dir")
-        branch=$(git branch --show-current 2>/dev/null)
+# Function to scan a single project
+scan_project() {
+    local project_dir="$1"
 
-        # Check uncommitted changes
-        uncommitted_count=$(git status -s 2>/dev/null | wc -l)
+    if [ ! -d "$project_dir/.git" ]; then
+        return
+    fi
 
-        # Check unpushed commits
-        unpushed_count=$(git log origin/$branch..$branch --oneline 2>/dev/null | wc -l)
+    cd "$project_dir"
+    project_name=$(basename "$project_dir")
+    branch=$(git branch --show-current 2>/dev/null)
 
-        # Check if branch exists on remote
-        if ! git rev-parse origin/$branch >/dev/null 2>&1; then
-            unpushed_count="?"
+    # Check uncommitted changes
+    uncommitted_count=$(git status -s 2>/dev/null | wc -l)
+
+    # Check unpushed commits
+    unpushed_count=$(git log origin/$branch..$branch --oneline 2>/dev/null | wc -l)
+
+    # Check if branch exists on remote
+    if ! git rev-parse origin/$branch >/dev/null 2>&1; then
+        unpushed_count="?"
+    fi
+
+    # Only show if there are issues
+    if [ "$uncommitted_count" -gt 0 ] || [ "$unpushed_count" != "0" ]; then
+        has_issues=1
+        echo "⚠️  $project_name"
+        echo "   📌 Branch: $branch"
+
+        if [ "$uncommitted_count" -gt 0 ]; then
+            echo "   📝 Uncommitted: $uncommitted_count files"
+            git status -s | head -5 | sed 's/^/      /'
+            if [ "$uncommitted_count" -gt 5 ]; then
+                echo "      ... and $((uncommitted_count - 5)) more"
+            fi
         fi
 
-        # Only show if there are issues
-        if [ "$uncommitted_count" -gt 0 ] || [ "$unpushed_count" != "0" ]; then
-            has_issues=1
-            echo "⚠️  $project_name"
-            echo "   📌 Branch: $branch"
-
-            if [ "$uncommitted_count" -gt 0 ]; then
-                echo "   📝 Uncommitted: $uncommitted_count files"
-                git status -s | head -5 | sed 's/^/      /'
-                if [ "$uncommitted_count" -gt 5 ]; then
-                    echo "      ... and $((uncommitted_count - 5)) more"
+        if [ "$unpushed_count" != "0" ]; then
+            if [ "$unpushed_count" = "?" ]; then
+                echo "   ⬆️  Unpushed: Branch not on remote (needs first push)"
+            else
+                echo "   ⬆️  Unpushed: $unpushed_count commits"
+                git log origin/$branch..$branch --oneline 2>/dev/null | head -3 | sed 's/^/      /'
+                if [ "$unpushed_count" -gt 3 ]; then
+                    echo "      ... and $((unpushed_count - 3)) more"
                 fi
             fi
+        fi
 
-            if [ "$unpushed_count" != "0" ]; then
-                if [ "$unpushed_count" = "?" ]; then
-                    echo "   ⬆️  Unpushed: Branch not on remote (needs first push)"
-                else
-                    echo "   ⬆️  Unpushed: $unpushed_count commits"
-                    git log origin/$branch..$branch --oneline 2>/dev/null | head -3 | sed 's/^/      /'
-                    if [ "$unpushed_count" -gt 3 ]; then
-                        echo "      ... and $((unpushed_count - 3)) more"
-                    fi
+        echo "   📍 cd $project_dir"
+        echo ""
+    fi
+}
+
+# Scan all configured project directories
+for dir in "${PROJECT_DIRS[@]}"; do
+    if [ -d "$dir" ]; then
+        # If it's a directory with projects inside
+        if [ -d "$dir/.git" ]; then
+            # It's a git repo itself
+            scan_project "$dir"
+        else
+            # It's a directory containing multiple projects
+            for project_dir in "$dir"/*; do
+                if [ -d "$project_dir/.git" ]; then
+                    scan_project "$project_dir"
                 fi
-            fi
-
-            echo "   📍 cd $project_dir"
-            echo ""
+            done
         fi
     fi
 done
