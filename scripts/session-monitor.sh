@@ -5,7 +5,13 @@
 
 DASHBOARD_DIR="/home/klatt42/projects/terminal-work/superdesign/design_iterations"
 SESSION_DATA_FILE="$DASHBOARD_DIR/session-data.json"
-PROJECTS_DIR="/home/klatt42/projects"
+
+# Define all project directories to monitor (matching scan-projects.sh)
+PROJECT_DIRS=(
+    "$HOME/projects"
+    "$HOME/serp-master"
+    "$HOME/projects/genesis-skills-test/my-erp-plan"
+)
 
 # Function to get git status for a directory
 get_git_status() {
@@ -80,10 +86,14 @@ collect_session_data() {
     local first=true
     local session_count=0
 
-    # Find all project directories
-    for project_dir in "$PROJECTS_DIR"/*; do
-        if [ -d "$project_dir" ]; then
-            local project_name=$(basename "$project_dir")
+    # Scan all configured project directories
+    for dir in "${PROJECT_DIRS[@]}"; do
+        if [ -d "$dir" ]; then
+            # If it's a directory with projects inside
+            if [ -d "$dir/.git" ]; then
+                # It's a git repo itself
+                local project_dir="$dir"
+                local project_name=$(basename "$project_dir")
 
             # Get git info
             local git_info=$(get_git_status "$project_dir")
@@ -134,8 +144,68 @@ collect_session_data() {
                 \"recentCommands\":$recent_cmds
             }"
 
-            first=false
-            ((session_count++))
+                first=false
+                ((session_count++))
+            else
+                # It's a directory containing multiple projects
+                for project_dir in "$dir"/*; do
+                    if [ -d "$project_dir/.git" ]; then
+                        local project_name=$(basename "$project_dir")
+
+                        # Get git info
+                        local git_info=$(get_git_status "$project_dir")
+                        IFS='|' read -r branch status uncommitted <<< "$git_info"
+
+                        # Detect AI in use
+                        local ai=$(detect_ai "$project_dir")
+
+                        # Check if tmux session is active
+                        local active=$(is_tmux_active "$project_name")
+
+                        # Get last command
+                        local last_cmd=$(get_last_command "$project_dir" | head -c 50)
+
+                        # Get uptime
+                        local uptime=$(get_session_uptime "$project_name")
+
+                        # Get recent commands (last 3)
+                        local recent_cmds="["
+                        if [ -f "$project_dir/.bash_history" ]; then
+                            local cmd_first=true
+                            while IFS= read -r cmd; do
+                                if [ "$cmd_first" = false ]; then
+                                    recent_cmds+=","
+                                fi
+                                recent_cmds+="{\"prompt\":\"\$\",\"command\":\"$(echo "$cmd" | sed 's/"/\\"/g' | head -c 50)\"}"
+                                cmd_first=false
+                            done < <(tail -3 "$project_dir/.bash_history" 2>/dev/null)
+                        fi
+                        recent_cmds+="]"
+
+                        # Build session JSON
+                        if [ "$first" = false ]; then
+                            sessions+=","
+                        fi
+
+                        sessions+="{
+                            \"id\":$session_count,
+                            \"title\":\"$project_name\",
+                            \"active\":$active,
+                            \"ai\":\"$ai\",
+                            \"path\":\"$project_dir\",
+                            \"uptime\":\"$uptime\",
+                            \"lastCommand\":\"$last_cmd\",
+                            \"gitStatus\":\"$status\",
+                            \"branch\":\"$branch\",
+                            \"uncommittedChanges\":$uncommitted,
+                            \"recentCommands\":$recent_cmds
+                        }"
+
+                        first=false
+                        ((session_count++))
+                    fi
+                done
+            fi
         fi
     done
 
