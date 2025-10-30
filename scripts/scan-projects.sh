@@ -6,6 +6,7 @@ PROJECT_DIRS=(
     "$HOME/projects"
     "$HOME/serp-master"
     "$HOME/projects/genesis-skills-test/my-erp-plan"
+    "$HOME/prism-specialties-dmv-empire"
 )
 
 echo "═══════════════════════════════════════════════════════════════"
