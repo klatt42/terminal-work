@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Session Monitor - Live Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #16213e 100%);
+            color: #e1e8ed;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #0f3460;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #00d9ff 0%, #7b2cbf 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-left .timestamp {
+            color: #8892b0;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .refresh-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #00d9ff 0%, #7b2cbf 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            color: #8892b0;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00d9ff;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: #00ff88;
+        }
+
+        .sessions-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .session-card {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .session-card:hover {
+            border-color: #00d9ff;
+            transform: translateX(4px);
+        }
+
+        .session-card.active {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-title {
+            font-size: 1.25rem;
+            color: #00d9ff;
+            margin-bottom: 0.25rem;
+        }
+
+        .session-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: #8892b0;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-path {
+            color: #a8b2d1;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .session-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.ai-active {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .badge.git-clean {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .badge.git-dirty {
+            background: rgba(255, 179, 0, 0.2);
+            color: #ffb300;
+        }
+
+        .badge.running {
+            background: rgba(123, 44, 191, 0.2);
+            color: #b794f6;
+        }
+
+        .session-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #0f3460;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .detail-label {
+            color: #8892b0;
+            font-size: 0.75rem;
+        }
+
+        .detail-value {
+            color: #e1e8ed;
+            font-size: 0.9rem;
+        }
+
+        .command-history {
+            background: rgba(10, 14, 39, 0.6);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .command-history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .command-history::-webkit-scrollbar-track {
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 3px;
+        }
+
+        .command-history::-webkit-scrollbar-thumb {
+            background: #00d9ff;
+            border-radius: 3px;
+        }
+
+        .command-line {
+            padding: 0.25rem 0;
+            font-size: 0.8rem;
+            color: #a8b2d1;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .command-line .prompt {
+            color: #00ff88;
+        }
+
+        .command-line .command {
+            color: #00d9ff;
+        }
+
+        .ai-status-section {
+            background: rgba(15, 52, 96, 0.3);
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .ai-status-title {
+            font-size: 1.25rem;
+            color: #00d9ff;
+            margin-bottom: 1rem;
+        }
+
+        .ai-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .ai-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(10, 14, 39, 0.6);
+            border-radius: 8px;
+        }
+
+        .ai-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .ai-icon.active {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .ai-icon.inactive {
+            background: #4a5568;
+        }
+
+        .ai-name {
+            flex: 1;
+            color: #e1e8ed;
+            font-size: 0.9rem;
+        }
+
+        .ai-count {
+            color: #00d9ff;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .session-header {
+                flex-direction: column;
+            }
+
+            .session-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="header-left">
+                <h1>Terminal Session Monitor</h1>
+                <div class="timestamp" id="timestamp">Loading...</div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot active"></div>
+                    <span>Live</span>
+                </div>
+                <button class="refresh-btn" onclick="refreshData()">Refresh</button>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Active Sessions</div>
+                <div class="stat-value" id="active-sessions">0</div>
+                <div class="stat-change positive">+0 from last hour</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Projects</div>
+                <div class="stat-value" id="total-projects">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">AI Commands</div>
+                <div class="stat-value" id="ai-commands">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Git Operations</div>
+                <div class="stat-value" id="git-ops">0</div>
+            </div>
+        </div>
+
+        <div class="ai-status-section">
+            <h2 class="ai-status-title">Active AI Assistants</h2>
+            <div class="ai-status-grid">
+                <div class="ai-item">
+                    <div class="ai-icon active"></div>
+                    <span class="ai-name">Claude Code</span>
+                    <span class="ai-count">2 sessions</span>
+                </div>
+                <div class="ai-item">
+                    <div class="ai-icon active"></div>
+                    <span class="ai-name">Perplexity</span>
+                    <span class="ai-count">1 session</span>
+                </div>
+                <div class="ai-item">
+                    <div class="ai-icon inactive"></div>
+                    <span class="ai-name">Gemini CLI</span>
+                    <span class="ai-count">0 sessions</span>
+                </div>
+                <div class="ai-item">
+                    <div class="ai-icon active"></div>
+                    <span class="ai-name">OpenCode</span>
+                    <span class="ai-count">1 session</span>
+                </div>
+                <div class="ai-item">
+                    <div class="ai-icon inactive"></div>
+                    <span class="ai-name">Codex</span>
+                    <span class="ai-count">0 sessions</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sessions-grid" id="sessions-container">
+            <!-- Sessions will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample session data (would be loaded from backend in production)
+        const sessionData = [
+            {
+                id: 1,
+                title: "terminal-work",
+                active: true,
+                ai: "Claude Code",
+                path: "/home/klatt42/projects/terminal-work",
+                uptime: "2h 34m",
+                lastCommand: "SuperDesign integration",
+                gitStatus: "clean",
+                branch: "main",
+                uncommittedChanges: 0,
+                recentCommands: [
+                    { prompt: "$", command: "npm run build" },
+                    { prompt: "$", command: "git status" },
+                    { prompt: "$", command: "code ." }
+                ]
+            },
+            {
+                id: 2,
+                title: "project-genesis",
+                active: true,
+                ai: "Perplexity",
+                path: "/home/klatt42/projects/project-genesis",
+                uptime: "45m",
+                lastCommand: "Research design patterns",
+                gitStatus: "dirty",
+                branch: "feature/superdesign",
+                uncommittedChanges: 3,
+                recentCommands: [
+                    { prompt: "$", command: "ai 'research SuperDesign patterns'" },
+                    { prompt: "$", command: "git diff" }
+                ]
+            },
+            {
+                id: 3,
+                title: "website-builder",
+                active: false,
+                ai: "OpenCode",
+                path: "/home/klatt42/projects/website-builder",
+                uptime: "12m",
+                lastCommand: "Generate React components",
+                gitStatus: "clean",
+                branch: "main",
+                uncommittedChanges: 0,
+                recentCommands: [
+                    { prompt: "$", command: "opencode 'generate landing page'" },
+                    { prompt: "$", command: "npm start" }
+                ]
+            }
+        ];
+
+        function formatTimestamp() {
+            const now = new Date();
+            return now.toLocaleString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function renderSessions() {
+            const container = document.getElementById('sessions-container');
+            container.innerHTML = sessionData.map(session => `
+                <div class="session-card ${session.active ? 'active' : ''}">
+                    <div class="session-header">
+                        <div class="session-info">
+                            <div class="session-title">${session.title}</div>
+                            <div class="session-meta">
+                                <span>⏱️ ${session.uptime}</span>
+                                <span>🔀 ${session.branch}</span>
+                                ${session.uncommittedChanges > 0 ? `<span>📝 ${session.uncommittedChanges} changes</span>` : ''}
+                            </div>
+                            <div class="session-path">${session.path}</div>
+                        </div>
+                        <div class="session-badges">
+                            ${session.active ? '<span class="badge running">Running</span>' : ''}
+                            <span class="badge ai-active">${session.ai}</span>
+                            <span class="badge ${session.gitStatus === 'clean' ? 'git-clean' : 'git-dirty'}">${session.gitStatus}</span>
+                        </div>
+                    </div>
+
+                    <div class="session-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Last Command</span>
+                            <span class="detail-value">${session.lastCommand}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Git Branch</span>
+                            <span class="detail-value">${session.branch}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Session Time</span>
+                            <span class="detail-value">${session.uptime}</span>
+                        </div>
+                    </div>
+
+                    ${session.recentCommands.length > 0 ? `
+                        <div class="command-history">
+                            ${session.recentCommands.map(cmd => `
+                                <div class="command-line">
+                                    <span class="prompt">${cmd.prompt}</span> <span class="command">${cmd.command}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const activeSessions = sessionData.filter(s => s.active).length;
+            const totalProjects = sessionData.length;
+            const aiCommands = sessionData.reduce((sum, s) => sum + s.recentCommands.length, 0);
+            const gitOps = sessionData.reduce((sum, s) => sum + s.uncommittedChanges, 0);
+
+            document.getElementById('active-sessions').textContent = activeSessions;
+            document.getElementById('total-projects').textContent = totalProjects;
+            document.getElementById('ai-commands').textContent = aiCommands;
+            document.getElementById('git-ops').textContent = gitOps;
+        }
+
+        function refreshData() {
+            document.getElementById('timestamp').textContent = `Last updated: ${formatTimestamp()}`;
+            renderSessions();
+            updateStats();
+        }
+
+        // Initial load
+        refreshData();
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshData, 5000);
+
+        // Update timestamp every second
+        setInterval(() => {
+            document.getElementById('timestamp').textContent = `Last updated: ${formatTimestamp()}`;
+        }, 1000);
+    </script>
+</body>
+</html>
