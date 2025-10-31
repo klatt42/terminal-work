@@ -11,6 +11,13 @@
 # Claude session files (local context)
 .claude-session
 
+# MD Viewer generated HTML files
+superdesign/design_iterations/md-viewer-*.html
+
+# AI Router usage logs
+.config/terminal-work/ai-usage.log
+.config/terminal-work/ai-usage.json
+
 # Node modules (if any)
 node_modules/
 

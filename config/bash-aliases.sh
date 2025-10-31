@@ -152,3 +152,11 @@ alias view-md='~/projects/terminal-work/scripts/md2html.sh'
 alias mdview='~/projects/terminal-work/scripts/md2html.sh'
 
 echo "MD Viewer aliases loaded: md2html, view-md, mdview"
+
+# AI Router - Smart LLM Selection
+alias ai-router='~/projects/terminal-work/scripts/ai-router.sh'
+alias ask-ai='~/projects/terminal-work/scripts/ai-router.sh'
+alias ai-select='~/projects/terminal-work/scripts/ai-router.sh'
+alias ai-stats='~/projects/terminal-work/scripts/ai-router.sh stats'
+
+echo "AI Router aliases loaded: ai-router, ask-ai, ai-select, ai-stats"
