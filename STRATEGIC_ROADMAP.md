@@ -35,11 +35,71 @@ This document tracks strategic improvements for the terminal-work multi-AI workf
 - `SNAPSHOT_SYSTEM_README.md`
 - `EOD_SNAPSHOT_INTEGRATION.md`
 
+### Option J: Markdown to HTML Viewer
+**Status:** Complete ✅
+**Date:** 2025-10-31
+**Effort:** Very Low
+
+**What was built:**
+- `md2html.sh` script with styled HTML output
+- Bash aliases: `md2html`, `view-md`, `mdview`
+- Beautiful dark theme with syntax highlighting
+- Auto-opens in browser (port 8888)
+- Supports piping and file input
+
+**Usage:**
+```bash
+md2html STRATEGIC_ROADMAP.md
+cat report.md | md2html
+morning | md2html
+```
+
+**Benefits delivered:**
+- Easy-to-read formatted reports
+- Better scrolling and navigation
+- Shareable static HTML files
+- Reuses existing dashboard infrastructure
+
 ---
 
 ## 🎯 Remaining Recommendations (Ordered by Priority)
 
 ### Tier 1: High Impact, Quick Implementation
+
+#### Option K: LLM Selector for Agentic Work
+**Status:** Not Started
+**Priority:** High
+**Estimated Effort:** Low-Medium
+
+**What it is:**
+Smart LLM selection system that allows choosing between different models (Haiku 4.5 vs Sonnet 4.5) and providers (OpenRouter, Ollama) to optimize token costs during agentic workflows.
+
+**Features to build:**
+- Interactive LLM selection prompt during agentic tasks
+- OpenRouter integration for external models
+- Ollama Desktop integration for local models
+- Token cost comparison (Haiku 4.5 vs Sonnet 4.5)
+- Default model preferences by task type
+- Cost tracking and reporting
+
+**Benefits:**
+- Significant token cost savings (Haiku for simple tasks)
+- Access to wider range of specialized models
+- Local model option for privacy-sensitive work
+- Better resource utilization
+
+**Integration points:**
+- CLI prompt before agentic work begins
+- Alias commands: `cc-haiku`, `cc-sonnet`, `cc-ollama`
+- Dashboard - Show current model and token savings
+- Morning briefing - Show yesterday's token usage/cost
+
+**Implementation notes:**
+- OpenRouter account already available
+- Ollama Desktop already installed
+- Can start with simple prompt, enhance with cost predictions later
+
+---
 
 #### Option B: PRD → Implementation Tracker
 **Status:** Not Started
@@ -99,6 +159,45 @@ Intelligent routing system that suggests which AI to use based on task type, pro
 
 ### Tier 2: Workflow Optimization
 
+#### Option L: File Upload (Windows → WSL)
+**Status:** Not Started
+**Priority:** Medium
+**Estimated Effort:** Medium
+
+**What it is:**
+Seamless file transfer system from Windows to WSL for use with Claude Code, with optional RAG integration via Archon OS for document analysis.
+
+**Features to build:**
+- Command-line file upload interface (drag-drop or path input)
+- Support for screenshots, MD files, PDFs, and other document types
+- Automatic path translation (Windows → WSL)
+- RAG processing option via Archon OS (parsing, chunking, vector storage)
+- File preview and metadata display
+- Upload history and quick re-reference
+
+**Benefits:**
+- Easy Windows → WSL file transfer
+- No manual path conversion needed
+- RAG-powered document search and analysis
+- Quick screenshot sharing for debugging
+- Document context for AI conversations
+
+**Integration points:**
+- New command: `upload <file>` or `upload-rag <file>`
+- Archon OS RAG endpoints for document processing
+- Dashboard - Show recent uploads and RAG status
+- Handoff system - Include uploaded files in context
+
+**Technical notes:**
+- Similar to ROK Copilot file upload feature
+- WSL path: `/mnt/c/Users/...` for Windows files
+- Archon OS already has RAG capability built-in
+- Store uploaded files in `~/uploads/` with metadata
+
+**Related to:** Option M (RAG Agent) - provides file input for RAG system
+
+---
+
 #### Option D: Error Pattern Learning System
 **Status:** Not Started
 **Priority:** Medium
@@ -154,6 +253,54 @@ Coordinate multiple AIs working on the same feature simultaneously (Claude for i
 ---
 
 ### Tier 3: Advanced Automation
+
+#### Option M: RAG Agent with Archon OS
+**Status:** Not Started
+**Priority:** Medium
+**Estimated Effort:** High
+
+**What it is:**
+Intelligent document retrieval and analysis agent using Archon OS's built-in RAG capabilities for parsing, chunking, and vector storage of project documentation.
+
+**Features to build:**
+- Document ingestion pipeline (MD, PDF, code files)
+- Integration with Archon OS RAG endpoints
+- Smart document chunking and embedding
+- Natural language query interface
+- Context-aware retrieval for AI conversations
+- Multi-project document corpus
+
+**Benefits:**
+- Instant access to project documentation
+- Context-aware code assistance
+- Cross-project knowledge retrieval
+- Reduced manual file searching
+- Better AI responses with relevant context
+
+**Integration points:**
+- Archon OS RAG API (parsing, chunking, vector storage)
+- Upload command (Option L) for document ingestion
+- New commands: `rag-query <question>`, `rag-index <project>`
+- Morning briefing - Show indexed documents per project
+- Handoff system - Include relevant RAG context
+
+**Technical architecture:**
+- Archon OS handles: parsing, chunking, embeddings, vector DB
+- Terminal-work handles: CLI interface, query routing, result display
+- Document types: MD, PDF, code files, screenshots (OCR)
+- Vector storage: Persistent across sessions via Archon
+
+**Prerequisites:**
+- Option L (File Upload) - provides document input
+- Archon OS running and healthy (already operational)
+
+**Implementation phases:**
+1. Phase 1: Basic document indexing and query
+2. Phase 2: Auto-indexing during snapshots
+3. Phase 3: Context injection into AI conversations
+4. Phase 4: Cross-project knowledge graph
+
+---
 
 #### Option F: Cross-Project Intelligence
 **Status:** Not Started
@@ -257,9 +404,14 @@ Generate documentation automatically from snapshots, commits, and AI conversatio
 
 **When you resume tomorrow, prioritize:**
 
-1. **Option B (PRD Tracker)** - Most immediate value, builds on handoff system
-2. **Option C (AI Router)** - High impact for multi-AI workflow
-3. **Option D (Error Learning)** - Long-term productivity boost
+1. **Option K (LLM Selector)** - Quick win with immediate cost savings (1-2 hours)
+2. **Option B (PRD Tracker)** - Most immediate value, builds on handoff system
+3. **Option C (AI Router)** - High impact for multi-AI workflow
+
+**Medium-term projects:**
+- Option L (File Upload) - Enables RAG workflows (2-3 hours)
+- Option D (Error Learning) - Long-term productivity boost
+- Option M (RAG Agent) - Requires Option L first (4-8 hours)
 
 **Low-hanging fruit:**
 - Option H (Analytics) - Can start collecting data immediately
@@ -276,8 +428,16 @@ Generate documentation automatically from snapshots, commits, and AI conversatio
 
 - All options are independent and can be implemented in any order
 - Some options (B, C, D) can be implemented in phases
-- Consider user feedback after Option A deployment
-- Some options may naturally combine (H + I, D + F)
+- Consider user feedback after Option A and J deployment
+- Some options may naturally combine:
+  - H + I (Analytics + Documentation)
+  - D + F (Error Learning + Cross-Project Intelligence)
+  - L + M (File Upload + RAG Agent) - sequential dependency
+  - K + C (LLM Selector + AI Router) - complementary features
+
+**Dependencies:**
+- Option M (RAG Agent) requires Option L (File Upload) to be completed first
+- Option K (LLM Selector) leverages existing OpenRouter and Ollama accounts
 
 ---
 
@@ -286,17 +446,21 @@ Generate documentation automatically from snapshots, commits, and AI conversatio
 **When you resume:**
 
 1. Review this roadmap
-2. Choose next option to implement (recommend Option B or C)
-3. Create implementation plan
-4. Build and test
-5. Update this document with progress
+2. **Recommended next: Option K (LLM Selector)** - Quick win, immediate value
+3. Alternative: Option B (PRD Tracker) or Option C (AI Router)
+4. Create implementation plan
+5. Build and test
+6. Update this document with progress
 
-**Your previous comment:**
-> "Excellent ideas; make note of all of these as I'd like to revisit all of them in some manor and tweak a few of them"
+**Recent user requests (2025-10-31):**
+> "I'd like to create a LLM selector capability for agent work... OpenRouter and Ollama Desktop installed... stepping to Haiku 4.5 rather than Sonnet 4.5 will save tokens"
+> "MD response to an HTML tab... static HTML... easier to see and scroll"
+> "File upload feature... Windows → WSL... RAG via Archon OS"
+> "RAG agent using Archon for parsing, chunking, vector storage"
 
-All noted and ready for tomorrow! 🚀
+All noted and added to roadmap as Options K, L, M!
 
 ---
 
-**Last Updated:** 2025-10-30 20:54:00
-**Next Review:** 2025-10-31 (tomorrow morning)
+**Last Updated:** 2025-10-31 15:52:00
+**Next Review:** 2025-11-01 (tomorrow morning)

@@ -145,3 +145,10 @@ alias handoff-to-cc='~/projects/terminal-work/scripts/handoff-to-cc.sh'
 alias handoff-from-cc='~/projects/terminal-work/scripts/handoff-from-cc.sh'
 
 echo "Snapshot & Handoff aliases loaded: snapshot, snapshot-create, snapshot-resume, snapshot-list, handoff-to-cc, handoff-from-cc"
+
+# Markdown to HTML Viewer
+alias md2html='~/projects/terminal-work/scripts/md2html.sh'
+alias view-md='~/projects/terminal-work/scripts/md2html.sh'
+alias mdview='~/projects/terminal-work/scripts/md2html.sh'
+
+echo "MD Viewer aliases loaded: md2html, view-md, mdview"
