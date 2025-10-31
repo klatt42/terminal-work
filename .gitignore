@@ -1,0 +1,26 @@
+# Local snapshot files (project-specific state)
+.snapshots/
+
+# Local handoff summaries
+.handoff-summary.md
+
+# Temporary AI state files
+.ai-state.json.tmp
+*.tmp
+
+# Claude session files (local context)
+.claude-session
+
+# Node modules (if any)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

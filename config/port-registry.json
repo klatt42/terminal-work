@@ -50,11 +50,30 @@
       "backend": null,
       "status": "inactive",
       "notes": "Genesis framework"
+    },
+    "archon-os": {
+      "ui": 3737,
+      "mcp": 8051,
+      "server": 8181,
+      "agents": 8052,
+      "status": "active",
+      "type": "docker",
+      "notes": "Archon OS - Multi-agent orchestration system (Docker containerized)"
+    },
+    "commercial-lead-gen": {
+      "frontend": 3008,
+      "backend": null,
+      "status": "active",
+      "notes": "Commercial Restoration Lead Gen - AI damage assessment with CopilotKit"
     }
   },
   "reservedPorts": {
     "3000-3019": "Frontend services",
+    "3737": "Archon OS UI",
     "8000-8019": "Backend APIs",
+    "8051": "Archon MCP",
+    "8052": "Archon Agents",
+    "8181": "Archon Server",
     "5432": "PostgreSQL (Supabase local)",
     "6379": "Redis",
     "9000-9019": "Microservices"

@@ -236,8 +236,71 @@ else
 fi
 echo ""
 
-# 4. Push to GitHub
-echo -e "${YELLOW}4. Pushing to GitHub...${NC}"
+# 4. Create snapshots for all active projects
+echo -e "${YELLOW}4. Creating snapshots for active projects...${NC}"
+
+# Array to track projects with snapshots
+SNAPSHOT_PROJECTS=()
+
+# Additional project directories to check
+EXTRA_DIRS=(
+    "$HOME/serp-master"
+    "$HOME/projects/genesis-skills-test/my-erp-plan"
+    "$HOME/prism-specialties-dmv-empire"
+)
+
+# Function to create snapshot if project has changes
+create_project_snapshot() {
+    local proj_path=$1
+    local proj_name=$(basename "$proj_path")
+
+    if [ -d "$proj_path/.git" ]; then
+        cd "$proj_path"
+
+        # Check if project has uncommitted changes OR recent activity
+        local has_changes=$(git status -s 2>/dev/null | wc -l)
+        local recent_files=$(find "$proj_path" -type f -mtime -1 ! -path "*/.git/*" ! -path "*/node_modules/*" 2>/dev/null | wc -l)
+
+        if [ "$has_changes" -gt 0 ] || [ "$recent_files" -gt 0 ]; then
+            echo -e "   📸 $proj_name..."
+
+            # Create snapshot using new snapshot system
+            if [ -f "$HOME/projects/terminal-work/scripts/snapshot-create.sh" ]; then
+                "$HOME/projects/terminal-work/scripts/snapshot-create.sh" "EOD Snapshot - $DATE" > /dev/null 2>&1
+                SNAPSHOT_PROJECTS+=("$proj_name|$proj_path")
+                echo -e "      ${GREEN}✓ Snapshot created${NC}"
+            else
+                echo -e "      ${YELLOW}⚠ snapshot-create.sh not found${NC}"
+            fi
+        fi
+    fi
+}
+
+# Scan projects directory
+for project_path in "$PROJECTS_ROOT"/*; do
+    if [ -d "$project_path" ]; then
+        create_project_snapshot "$project_path"
+    fi
+done
+
+# Scan extra directories
+for extra_path in "${EXTRA_DIRS[@]}"; do
+    if [ -d "$extra_path" ]; then
+        create_project_snapshot "$extra_path"
+    fi
+done
+
+cd "$PROJECT_DIR"
+
+if [ ${#SNAPSHOT_PROJECTS[@]} -gt 0 ]; then
+    echo -e "${GREEN}✓ Created ${#SNAPSHOT_PROJECTS[@]} project snapshots${NC}"
+else
+    echo -e "${GREEN}✓ No active projects to snapshot${NC}"
+fi
+echo ""
+
+# 5. Push to GitHub
+echo -e "${YELLOW}5. Pushing to GitHub...${NC}"
 if git push; then
     echo -e "${GREEN}✓ Pushed to GitHub${NC}"
 else
@@ -245,8 +308,8 @@ else
 fi
 echo ""
 
-# 5. Capture dashboard state
-echo -e "${YELLOW}5. Capturing dashboard state...${NC}"
+# 6. Capture dashboard state
+echo -e "${YELLOW}6. Capturing dashboard state...${NC}"
 if [ -f "$PROJECT_DIR/scripts/session-monitor.sh" ]; then
     "$PROJECT_DIR/scripts/session-monitor.sh" > /dev/null 2>&1
 
@@ -261,8 +324,8 @@ else
 fi
 echo ""
 
-# 6. Generate morning briefing
-echo -e "${YELLOW}6. Generating morning briefing...${NC}"
+# 7. Generate morning briefing
+echo -e "${YELLOW}7. Generating morning briefing...${NC}"
 
 cat > "$BRIEFING_FILE" << 'BRIEF_EOF'
 #!/bin/bash
@@ -339,7 +402,12 @@ if [ -d "$project_path/.git" ]; then
         echo "   📝 \$recent files modified yesterday"
     fi
 
-    echo "   🚀 Open with: cd $project_path"
+    # Check for snapshot
+    if [ -f "$project_path/.snapshots/latest-summary.txt" ]; then
+        echo "   📸 Snapshot available - Quick resume: cd $project_path && snapshot-resume"
+    else
+        echo "   🚀 Open with: cd $project_path"
+    fi
 else
     echo "   📄 Not a git repository"
 fi
@@ -376,6 +444,12 @@ echo ""
 echo "Quick commit:"
 echo "  ~/projects/terminal-work/scripts/quick-commit.sh \"Add: message\""
 echo ""
+echo "Resume from snapshot:"
+echo "  cd <project-path> && snapshot-resume"
+echo ""
+echo "Create snapshot:"
+echo "  snapshot-create \"Your message\""
+echo ""
 echo "End of day (tonight):"
 echo "  ~/projects/terminal-work/scripts/end-of-day.sh"
 echo ""
@@ -389,7 +463,7 @@ chmod +x "$BRIEFING_FILE"
 echo -e "${GREEN}✓ Morning briefing created: $BRIEFING_FILE${NC}"
 echo ""
 
-# 7. Summary
+# 8. Summary
 echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║                    END OF DAY COMPLETE ✓                     ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
@@ -398,11 +472,17 @@ echo -e "${BLUE}📁 Files Created:${NC}"
 echo -e "   • $TODAY_FILE (Full session log)"
 echo -e "   • $BRIEFING_FILE (Morning briefing)"
 echo -e "   • $SESSION_DIR/$DATE-dashboard-snapshot.html (Dashboard snapshot)"
+if [ ${#SNAPSHOT_PROJECTS[@]} -gt 0 ]; then
+    echo -e "   • ${#SNAPSHOT_PROJECTS[@]} project snapshots created"
+fi
 echo ""
 echo -e "${BLUE}✅ Completed:${NC}"
 echo -e "   • All projects scanned & status captured"
 echo -e "   • Terminal states preserved"
 echo -e "   • AI context synchronized"
+if [ ${#SNAPSHOT_PROJECTS[@]} -gt 0 ]; then
+    echo -e "   • Project snapshots created for quick resume"
+fi
 echo -e "   • Changes committed & pushed"
 echo -e "   • Morning briefing generated"
 echo ""
@@ -418,6 +498,7 @@ echo -e "${BLUE}This will show you:${NC}"
 echo -e "   ✓ Yesterday's summary"
 echo -e "   ✓ All projects with their current state"
 echo -e "   ✓ Which projects have uncommitted changes"
-echo -e "   ✓ Exact 'cd' commands to resume work"
+echo -e "   ✓ Which projects have snapshots for quick resume"
+echo -e "   ✓ Exact 'cd' and 'snapshot-resume' commands"
 echo -e "   ✓ Quick commands reference"
 echo ""

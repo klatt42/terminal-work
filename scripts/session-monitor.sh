@@ -68,10 +68,33 @@ detect_ai() {
     fi
 }
 
-# Function to check if tmux session is active for a project
-is_tmux_active() {
-    local project_name=$1
-    tmux list-sessions 2>/dev/null | grep -q "$project_name" && echo "true" || echo "false"
+# Function to check if a project is active (dev server, Claude Code, or recent changes)
+is_project_active() {
+    local project_dir=$1
+    local project_name=$(basename "$project_dir")
+
+    # Check 1: Is there a dev server running for this project?
+    if lsof -i :3000-3010 2>/dev/null | grep -q "node.*$project_name"; then
+        echo "true"
+        return
+    fi
+
+    # Check 2: Has the project been modified in the last 10 minutes?
+    if [ -d "$project_dir" ]; then
+        local recent_files=$(find "$project_dir" -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -mmin -10 2>/dev/null | head -1)
+        if [ -n "$recent_files" ]; then
+            echo "true"
+            return
+        fi
+    fi
+
+    # Check 3: Check for tmux session (legacy support)
+    if tmux list-sessions 2>/dev/null | grep -q "$project_name"; then
+        echo "true"
+        return
+    fi
+
+    echo "false"
 }
 
 # Function to get session uptime (placeholder - would need more sophisticated tracking)
@@ -79,6 +102,71 @@ get_session_uptime() {
     # In production, this would track actual session start time
     # For now, return a placeholder
     echo "Unknown"
+}
+
+# Function to get Docker container data
+collect_docker_data() {
+    local containers="["
+    local first=true
+    local running_count=0
+    local stopped_count=0
+
+    # Check if Docker is running
+    if ! docker info >/dev/null 2>&1; then
+        echo "{\"running\":false,\"containers\":[]}"
+        return
+    fi
+
+    # Get all Archon OS containers
+    local archon_containers=("Archon-UI" "Archon-MCP" "Archon-Server" "Archon-Agents")
+
+    for container in "${archon_containers[@]}"; do
+        if docker ps --filter "name=$container" --filter "status=running" --format "{{.Names}}" 2>/dev/null | grep -q "$container"; then
+            local status=$(docker ps --filter "name=$container" --format "{{.Status}}" 2>/dev/null)
+            local ports=$(docker ps --filter "name=$container" --format "{{.Ports}}" 2>/dev/null | sed 's/"/\\"/g')
+
+            if [ "$first" = false ]; then
+                containers+=","
+            fi
+
+            containers+="{
+                \"name\":\"$container\",
+                \"status\":\"running\",
+                \"health\":\"healthy\",
+                \"uptime\":\"$status\",
+                \"ports\":\"$ports\"
+            }"
+
+            first=false
+            ((running_count++))
+        elif docker ps -a --filter "name=$container" --format "{{.Names}}" 2>/dev/null | grep -q "$container"; then
+            # Container exists but is stopped
+            if [ "$first" = false ]; then
+                containers+=","
+            fi
+
+            containers+="{
+                \"name\":\"$container\",
+                \"status\":\"stopped\",
+                \"health\":\"n/a\",
+                \"uptime\":\"Stopped\",
+                \"ports\":\"\"
+            }"
+
+            first=false
+            ((stopped_count++))
+        fi
+    done
+
+    containers+="]"
+
+    echo "{
+        \"running\":true,
+        \"runningCount\":$running_count,
+        \"stoppedCount\":$stopped_count,
+        \"totalCount\":$((running_count + stopped_count)),
+        \"containers\":$containers
+    }"
 }
 
 # Main function to collect all session data
@@ -103,8 +191,8 @@ collect_session_data() {
             # Detect AI in use
             local ai=$(detect_ai "$project_dir")
 
-            # Check if tmux session is active
-            local active=$(is_tmux_active "$project_name")
+            # Check if project is active
+            local active=$(is_project_active "$project_dir")
 
             # Get last command
             local last_cmd=$(get_last_command "$project_dir" | head -c 50)
@@ -160,8 +248,8 @@ collect_session_data() {
                         # Detect AI in use
                         local ai=$(detect_ai "$project_dir")
 
-                        # Check if tmux session is active
-                        local active=$(is_tmux_active "$project_name")
+                        # Check if project is active
+                        local active=$(is_project_active "$project_dir")
 
                         # Get last command
                         local last_cmd=$(get_last_command "$project_dir" | head -c 50)
@@ -216,6 +304,9 @@ collect_session_data() {
     local ai_counts=$(echo "$sessions" | grep -o '"ai":"[^"]*"' | sort | uniq -c)
     local active_count=$(echo "$sessions" | grep -c '"active":true')
 
+    # Collect Docker data
+    local docker_data=$(collect_docker_data)
+
     # Build final JSON
     local json="{
         \"timestamp\":\"$(date -Iseconds)\",
@@ -225,6 +316,7 @@ collect_session_data() {
             \"aiCommands\":0,
             \"gitOps\":0
         },
+        \"docker\":$docker_data,
         \"sessions\":$sessions
     }"
 
