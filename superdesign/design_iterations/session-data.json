@@ -1,5 +1,5 @@
 {
-        "timestamp":"2025-11-01T08:04:49-04:00",
+        "timestamp":"2025-11-01T08:59:51-04:00",
         "stats":{
             "activeSessions":1,
             "totalProjects":11,
@@ -95,7 +95,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"phase-3-llm-router",
-                            "uncommittedChanges":10,
+                            "uncommittedChanges":12,
                             "recentCommands":[]
                         },{
                             "id":5,
@@ -131,7 +131,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"main",
-                            "uncommittedChanges":3,
+                            "uncommittedChanges":2,
                             "recentCommands":[]
                         },{
                 "id":8,
