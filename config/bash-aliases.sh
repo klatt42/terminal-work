@@ -159,4 +159,9 @@ alias ask-ai='~/projects/terminal-work/scripts/ai-router.sh'
 alias ai-select='~/projects/terminal-work/scripts/ai-router.sh'
 alias ai-stats='~/projects/terminal-work/scripts/ai-router.sh stats'
 
-echo "AI Router aliases loaded: ai-router, ask-ai, ai-select, ai-stats"
+# Enhanced AI Router - Task Analysis & Smart Routing
+alias ai-route='~/projects/terminal-work/scripts/ai-route-task.sh'
+alias route-task='~/projects/terminal-work/scripts/ai-route-task.sh'
+alias which-ai='~/projects/terminal-work/scripts/ai-route-task.sh'
+
+echo "AI Router aliases loaded: ai-router, ask-ai, ai-select, ai-stats, ai-route, route-task, which-ai"

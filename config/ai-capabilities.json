@@ -1,0 +1,120 @@
+{
+  "ai_models": {
+    "haiku": {
+      "name": "Claude Haiku 4.5",
+      "provider": "OpenRouter",
+      "cost_multiplier": 0.2,
+      "strengths": ["quick_queries", "simple_tasks", "code_explanation", "documentation"],
+      "best_for": ["Answering questions", "Simple explanations", "Code documentation", "Quick searches"],
+      "token_limit": 200000,
+      "speed": "fast"
+    },
+    "sonnet": {
+      "name": "Claude Sonnet 4.5",
+      "provider": "Claude Code",
+      "cost_multiplier": 1.0,
+      "strengths": ["complex_reasoning", "refactoring", "architecture", "debugging", "implementation"],
+      "best_for": ["Complex implementations", "System architecture", "Refactoring", "Advanced debugging", "Production code"],
+      "token_limit": 200000,
+      "speed": "medium"
+    },
+    "gemini": {
+      "name": "Gemini",
+      "provider": "Google",
+      "cost_multiplier": 0.3,
+      "strengths": ["research", "multimodal", "web_search", "data_analysis"],
+      "best_for": ["Research tasks", "Image analysis", "Data processing", "Web searches", "Multi-step reasoning"],
+      "token_limit": 1000000,
+      "speed": "fast"
+    },
+    "codex": {
+      "name": "Codex",
+      "provider": "OpenAI",
+      "cost_multiplier": 0.4,
+      "strengths": ["code_generation", "code_completion", "syntax", "algorithms"],
+      "best_for": ["Code generation", "Algorithm implementation", "Code completion", "Syntax fixes"],
+      "token_limit": 8000,
+      "speed": "fast"
+    },
+    "grok": {
+      "name": "OpenCode (Grok)",
+      "provider": "xAI",
+      "cost_multiplier": 0.0,
+      "strengths": ["general_purpose", "conversational", "real_time"],
+      "best_for": ["General queries", "Conversational AI", "Real-time info", "Free alternative"],
+      "token_limit": 100000,
+      "speed": "medium"
+    },
+    "perplexity": {
+      "name": "Perplexity",
+      "provider": "Perplexity AI",
+      "cost_multiplier": 0.5,
+      "strengths": ["research", "web_search", "citations", "fact_checking"],
+      "best_for": ["Research with sources", "Fact checking", "Current events", "Citation-backed answers"],
+      "token_limit": 100000,
+      "speed": "medium"
+    }
+  },
+  "task_categories": {
+    "implementation": {
+      "keywords": ["implement", "build", "create", "develop", "write code"],
+      "recommended_ais": ["sonnet", "codex"],
+      "complexity": "high"
+    },
+    "refactoring": {
+      "keywords": ["refactor", "improve", "optimize", "restructure", "clean up"],
+      "recommended_ais": ["sonnet", "haiku"],
+      "complexity": "medium-high"
+    },
+    "research": {
+      "keywords": ["research", "find", "search", "investigate", "explore", "compare"],
+      "recommended_ais": ["perplexity", "gemini"],
+      "complexity": "medium"
+    },
+    "explanation": {
+      "keywords": ["explain", "what is", "how does", "describe", "help me understand"],
+      "recommended_ais": ["haiku", "gemini"],
+      "complexity": "low"
+    },
+    "debugging": {
+      "keywords": ["debug", "fix", "error", "bug", "not working", "broken"],
+      "recommended_ais": ["sonnet", "codex"],
+      "complexity": "medium-high"
+    },
+    "code_review": {
+      "keywords": ["review", "analyze", "check", "audit", "assess"],
+      "recommended_ais": ["sonnet", "haiku"],
+      "complexity": "medium"
+    },
+    "quick_query": {
+      "keywords": ["quick", "simple", "list", "show", "display", "status"],
+      "recommended_ais": ["haiku", "grok"],
+      "complexity": "low"
+    },
+    "data_analysis": {
+      "keywords": ["analyze data", "process", "parse", "extract", "transform"],
+      "recommended_ais": ["gemini", "sonnet"],
+      "complexity": "medium"
+    }
+  },
+  "project_context": {
+    "serp-master": {
+      "type": "seo_platform",
+      "preferred_ai": "sonnet",
+      "technologies": ["react", "node", "seo"],
+      "complexity": "high"
+    },
+    "rok-copilot": {
+      "type": "ai_assistant",
+      "preferred_ai": "sonnet",
+      "technologies": ["react", "ai", "chat"],
+      "complexity": "high"
+    },
+    "terminal-work": {
+      "type": "automation",
+      "preferred_ai": "haiku",
+      "technologies": ["bash", "python", "scripts"],
+      "complexity": "medium"
+    }
+  }
+}
