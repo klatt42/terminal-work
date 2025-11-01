@@ -1,5 +1,5 @@
 {
-        "timestamp":"2025-11-01T08:02:03-04:00",
+        "timestamp":"2025-11-01T08:04:49-04:00",
         "stats":{
             "activeSessions":1,
             "totalProjects":11,
@@ -131,7 +131,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"main",
-                            "uncommittedChanges":7,
+                            "uncommittedChanges":3,
                             "recentCommands":[]
                         },{
                 "id":8,
