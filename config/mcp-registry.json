@@ -3,7 +3,7 @@
     "docker-hub": {
       "name": "Docker Hub MCP",
       "description": "Docker registry management - search images, check tags, manage repositories",
-      "image": "ghcr.io/docker/hub-mcp:latest",
+      "image": "mcp/dockerhub",
       "port": 9001,
       "healthEndpoint": "/health",
       "capabilities": [
@@ -14,12 +14,13 @@
       ],
       "autoStart": false,
       "idleTimeout": 3600,
-      "env": {}
+      "env": {},
+      "note": "Uses Docker official MCP namespace"
     },
     "playwright": {
       "name": "Playwright MCP",
       "description": "Browser automation and testing - screenshots, PDF generation, testing",
-      "image": "ghcr.io/microsoft/playwright-mcp:latest",
+      "image": "mcr.microsoft.com/playwright/mcp",
       "port": 9002,
       "healthEndpoint": "/health",
       "capabilities": [
@@ -33,7 +34,8 @@
       "idleTimeout": 1800,
       "env": {
         "PLAYWRIGHT_BROWSERS_PATH": "/ms-playwright"
-      }
+      },
+      "note": "Official Microsoft Playwright MCP - headless chromium only in Docker"
     },
     "perplexity": {
       "name": "Perplexity MCP",
