@@ -1,0 +1,100 @@
+{
+  "mcpServers": {
+    "docker-hub": {
+      "name": "Docker Hub MCP",
+      "description": "Docker registry management - search images, check tags, manage repositories",
+      "image": "ghcr.io/docker/hub-mcp:latest",
+      "port": 9001,
+      "healthEndpoint": "/health",
+      "capabilities": [
+        "docker_registry",
+        "image_search",
+        "tag_management",
+        "repository_info"
+      ],
+      "autoStart": false,
+      "idleTimeout": 3600,
+      "env": {}
+    },
+    "playwright": {
+      "name": "Playwright MCP",
+      "description": "Browser automation and testing - screenshots, PDF generation, testing",
+      "image": "ghcr.io/microsoft/playwright-mcp:latest",
+      "port": 9002,
+      "healthEndpoint": "/health",
+      "capabilities": [
+        "browser_automation",
+        "screenshot_capture",
+        "pdf_generation",
+        "web_scraping",
+        "e2e_testing"
+      ],
+      "autoStart": false,
+      "idleTimeout": 1800,
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/ms-playwright"
+      }
+    },
+    "perplexity": {
+      "name": "Perplexity MCP",
+      "description": "Research and web search with citations - fact checking, current events",
+      "image": "mcp/perplexity:latest",
+      "port": 9003,
+      "healthEndpoint": "/health",
+      "capabilities": [
+        "web_search",
+        "research",
+        "citations",
+        "fact_checking",
+        "current_events"
+      ],
+      "autoStart": false,
+      "idleTimeout": 3600,
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      },
+      "requiresApiKey": true
+    },
+    "youtube-transcript": {
+      "name": "YouTube Transcript MCP",
+      "description": "Extract and analyze YouTube video transcripts",
+      "image": "mcp/youtube-transcript:latest",
+      "port": 9004,
+      "healthEndpoint": "/health",
+      "capabilities": [
+        "transcript_extraction",
+        "video_analysis",
+        "caption_download",
+        "timestamp_search"
+      ],
+      "autoStart": false,
+      "idleTimeout": 1800,
+      "env": {}
+    },
+    "archon-mcp": {
+      "name": "Archon MCP (Built-in)",
+      "description": "Archon OS MCP server - already running",
+      "containerName": "Archon-MCP",
+      "port": 8051,
+      "healthEndpoint": "/health",
+      "capabilities": [
+        "agent_orchestration",
+        "rag_operations",
+        "file_processing",
+        "vector_storage"
+      ],
+      "autoStart": false,
+      "managedExternally": true
+    }
+  },
+  "portRange": {
+    "start": 9000,
+    "end": 9099
+  },
+  "defaults": {
+    "network": "terminal-work-mcp",
+    "restartPolicy": "unless-stopped",
+    "healthCheckInterval": 30,
+    "startupTimeout": 60
+  }
+}

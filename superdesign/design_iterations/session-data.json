@@ -1,5 +1,5 @@
 {
-        "timestamp":"2025-11-01T07:26:30-04:00",
+        "timestamp":"2025-11-01T08:02:03-04:00",
         "stats":{
             "activeSessions":1,
             "totalProjects":11,
@@ -95,7 +95,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"phase-3-llm-router",
-                            "uncommittedChanges":2,
+                            "uncommittedChanges":10,
                             "recentCommands":[]
                         },{
                             "id":5,
@@ -131,7 +131,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"main",
-                            "uncommittedChanges":5,
+                            "uncommittedChanges":7,
                             "recentCommands":[]
                         },{
                 "id":8,
@@ -141,9 +141,9 @@
                 "path":"/home/klatt42/serp-master",
                 "uptime":"Unknown",
                 "lastCommand":"No history available",
-                "gitStatus":"clean",
+                "gitStatus":"dirty",
                 "branch":"phase-2-ago-clean",
-                "uncommittedChanges":0,
+                "uncommittedChanges":1,
                 "recentCommands":[]
             },{
                 "id":9,
@@ -155,7 +155,7 @@
                 "lastCommand":"No history available",
                 "gitStatus":"dirty",
                 "branch":"main",
-                "uncommittedChanges":12,
+                "uncommittedChanges":13,
                 "recentCommands":[]
             },{
                 "id":10,

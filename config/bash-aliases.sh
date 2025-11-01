@@ -176,3 +176,13 @@ alias sb-status='~/bin/supabase status'
 alias sb-login='~/bin/supabase login'
 
 echo "Supabase aliases loaded: supabase, sb, sb-sql, supabase-sql, sb-link, sb-status, sb-login"
+
+# MCP Container Orchestrator
+alias mcp-launch='~/projects/terminal-work/scripts/mcp-launch.sh'
+alias mcp-start='~/projects/terminal-work/scripts/mcp-launch.sh'
+alias mcp-stop='~/projects/terminal-work/scripts/mcp-stop.sh'
+alias mcp-list='~/projects/terminal-work/scripts/mcp-list.sh'
+alias mcp-ps='~/projects/terminal-work/scripts/mcp-list.sh'
+alias mcps='~/projects/terminal-work/scripts/mcp-list.sh'
+
+echo "MCP Orchestrator aliases loaded: mcp-launch, mcp-start, mcp-stop, mcp-list, mcp-ps, mcps"
