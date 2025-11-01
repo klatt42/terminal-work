@@ -1,5 +1,5 @@
 {
-        "timestamp":"2025-10-31T22:47:32-04:00",
+        "timestamp":"2025-11-01T07:26:30-04:00",
         "stats":{
             "activeSessions":1,
             "totalProjects":11,
@@ -131,7 +131,7 @@
                             "lastCommand":"No history available",
                             "gitStatus":"dirty",
                             "branch":"main",
-                            "uncommittedChanges":4,
+                            "uncommittedChanges":5,
                             "recentCommands":[]
                         },{
                 "id":8,
@@ -141,9 +141,9 @@
                 "path":"/home/klatt42/serp-master",
                 "uptime":"Unknown",
                 "lastCommand":"No history available",
-                "gitStatus":"dirty",
+                "gitStatus":"clean",
                 "branch":"phase-2-ago-clean",
-                "uncommittedChanges":17,
+                "uncommittedChanges":0,
                 "recentCommands":[]
             },{
                 "id":9,

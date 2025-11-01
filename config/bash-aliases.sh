@@ -165,3 +165,14 @@ alias route-task='~/projects/terminal-work/scripts/ai-route-task.sh'
 alias which-ai='~/projects/terminal-work/scripts/ai-route-task.sh'
 
 echo "AI Router aliases loaded: ai-router, ask-ai, ai-select, ai-stats, ai-route, route-task, which-ai"
+
+# Supabase CLI shortcuts
+alias supabase='~/bin/supabase'
+alias sb='~/bin/supabase'
+alias sb-sql='~/projects/terminal-work/scripts/supabase-sql.sh'
+alias supabase-sql='~/projects/terminal-work/scripts/supabase-sql.sh'
+alias sb-link='~/bin/supabase link'
+alias sb-status='~/bin/supabase status'
+alias sb-login='~/bin/supabase login'
+
+echo "Supabase aliases loaded: supabase, sb, sb-sql, supabase-sql, sb-link, sb-status, sb-login"
