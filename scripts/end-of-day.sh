@@ -42,22 +42,46 @@ cat > "$TODAY_FILE" << EOF
 
 ## Summary
 
-$(echo -e "What did you accomplish today?\n(Type your summary below, press Ctrl+D when done)\n")
 EOF
 
-# Prompt for summary
-echo -e "${GREEN}Enter your day summary (Ctrl+D when done):${NC}"
-SUMMARY=$(cat)
+# Auto-generate summary from session data
+if [ -f "$PROJECT_DIR/superdesign/design_iterations/session-data.json" ]; then
+    SESSION_DATA=$(cat "$PROJECT_DIR/superdesign/design_iterations/session-data.json")
 
-# Append summary to file
-cat >> "$TODAY_FILE" << EOF
-$SUMMARY
+    # Extract active sessions and uncommitted changes
+    ACTIVE_PROJECTS=$(echo "$SESSION_DATA" | jq -r '.sessions[] | select(.active == true or .uncommittedChanges > 0) | "- **\(.title)**: \(.uncommittedChanges) uncommitted changes on branch `\(.branch)`"' 2>/dev/null)
+    ACTIVE_COUNT=$(echo "$SESSION_DATA" | jq '[.sessions[] | select(.active == true)] | length' 2>/dev/null || echo "0")
+    DIRTY_COUNT=$(echo "$SESSION_DATA" | jq '[.sessions[] | select(.uncommittedChanges > 0)] | length' 2>/dev/null || echo "0")
+
+    cat >> "$TODAY_FILE" << EOF
+**Active Sessions**: $ACTIVE_COUNT
+**Projects with Changes**: $DIRTY_COUNT
+**Total Projects Tracked**: $(echo "$SESSION_DATA" | jq '.stats.totalProjects' 2>/dev/null || echo "0")
+
+### Active Projects Today
+
+$ACTIVE_PROJECTS
+
+### Recent Git Commits (terminal-work)
+\`\`\`
+$(cd "$PROJECT_DIR" && git log --oneline -5 2>/dev/null || echo "No recent commits")
+\`\`\`
 
 ---
 
 ## All Projects Status
 
 EOF
+else
+    cat >> "$TODAY_FILE" << EOF
+Auto-generated from terminal session monitoring.
+
+---
+
+## All Projects Status
+
+EOF
+fi
 
 # Scan all projects
 echo -e "${YELLOW}Scanning all projects in $PROJECTS_ROOT...${NC}"
@@ -215,22 +239,22 @@ if [[ -n $(git status -s) ]]; then
     echo -e "${YELLOW}Uncommitted changes found:${NC}"
     git status -s
     echo ""
-    echo -e "${BLUE}Commit message for end-of-day:${NC}"
-    read -r COMMIT_MSG
 
-    if [ -n "$COMMIT_MSG" ]; then
-        git add -A
-        git commit -m "$COMMIT_MSG
+    # Auto-generate commit message from recent work
+    MODIFIED_FILES=$(git status -s | wc -l)
+    AUTO_COMMIT_MSG="EOD: Auto-commit $MODIFIED_FILES files - $DATE"
+
+    echo -e "${BLUE}Auto-generated commit message:${NC} $AUTO_COMMIT_MSG"
+
+    git add -A
+    git commit -m "$AUTO_COMMIT_MSG
 
 End of day commit - $DATE
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
-        echo -e "${GREEN}✓ Changes committed${NC}"
-    else
-        echo -e "${YELLOW}No commit message provided. Skipping commit.${NC}"
-    fi
+    echo -e "${GREEN}✓ Changes committed${NC}"
 else
     echo -e "${GREEN}✓ No uncommitted changes${NC}"
 fi
